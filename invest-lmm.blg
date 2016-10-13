@@ -1,0 +1,46 @@
+This is BibTeX, Version 0.99d (TeX Live 2015/Debian)
+Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
+The top-level auxiliary file: invest-lmm.aux
+The style file: plainnat.bst
+Database file #1: invest-lmm.bib.bib
+You've used 29 entries,
+            2773 wiz_defined-function locations,
+            763 strings with 8900 characters,
+and the built_in function-call counts, 10951 in all, are:
+= -- 970
+> -- 516
+< -- 25
++ -- 182
+- -- 153
+* -- 785
+:= -- 1743
+add.period$ -- 102
+call.type$ -- 29
+change.case$ -- 122
+chr.to.int$ -- 29
+cite$ -- 58
+duplicate$ -- 572
+empty$ -- 988
+format.name$ -- 202
+if$ -- 2291
+int.to.chr$ -- 1
+int.to.str$ -- 1
+missing$ -- 36
+newline$ -- 160
+num.names$ -- 116
+pop$ -- 272
+preamble$ -- 1
+purify$ -- 109
+quote$ -- 0
+skip$ -- 408
+stack$ -- 0
+substring$ -- 291
+swap$ -- 35
+text.length$ -- 0
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 259
+warning$ -- 0
+while$ -- 103
+width$ -- 0
+write$ -- 392
