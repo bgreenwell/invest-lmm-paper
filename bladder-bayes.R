@@ -64,7 +64,36 @@ library(lme4)
 library(nlme)
 
 # Random intercept and slope model for the transformed data
+original.nlme <- lme(HD ~ volume + I(volume ^ 2), 
+                     random = list(subject = pdDiag(~volume)),
+                     data = bladder)
+invest(original.nlme, y0 = 60)
 
+# Random intercept and slope model for the transformed data
+bladder.nlme <- lme(HD ^ (3/2) ~ volume, 
+                    random = list(subject = pdDiag(~volume)),
+                    data = bladder)
+invest(bladder.nlme, y0 = 500)
+
+# LMM for original (i.e., untransformed) data
+original.lme <- lme(HD ~ volume + I(volume ^ 2), 
+                    random = list(subject = pdDiag(~volume)),
+                    data = bladder)
+invest(original.lme, y0 = 80)
+
+
+# Possible explanation for the bimodal posterior density
+h <- function(x) ifelse(x > 0, x, 0)
+fit <- lme(HD ~ volume + I(volume ^ (2/3)), # h(7.5 - volume) + h(volume - 7.5),
+           random = list(subject = pdDiag(~volume)),
+           data = bladder)
+newx <- seq(from = 0, to = 19, length = 500)
+pred <- predict(fit, newdata = data.frame(volume = newx), level = 0)
+plot(HD ~ volume, data = bladder)
+lines(newx, pred)
+
+invest(fit, y0 = 80, upper = 50)
+invest(fit, y0 = 80, interval = "Wald")
 
 
 ################################################################################
@@ -72,7 +101,7 @@ library(nlme)
 ################################################################################
 
 # Model file
-model.original <- function() {
+model <- function() {
   
   # Likelihood
   for (i in 1:n) {
@@ -92,20 +121,18 @@ model.original <- function() {
   mu.b0 ~ dnorm(mu.b, tau.b)
   
   # Priors
-  mu.a ~     dnorm(0, 0.0001)  
-  mu.b ~     dnorm(0, 0.0001)  
-  mu.c ~     dnorm(0, 0.0001)  
-  tau.a <-   pow(sigma.a, -2)  
-  tau.b <-   pow(sigma.b, -2)
-  tau.y <-   pow(sigma.y, -2)
-  sigma.a ~  dunif(0, 100)
-  sigma.b ~  dunif(0, 100)
-  sigma.y ~  dunif(0, 100)
+  mu.a ~ dnorm(0, 0.0001)  
+  mu.b ~ dnorm(0, 0.0001)  
+  mu.c ~ dnorm(0, 0.0001)  
+  tau.a <- pow(sigma.a, -2)  
+  tau.b <- pow(sigma.b, -2)
+  tau.y <- pow(sigma.y, -2)
+  sigma.a ~ dunif(0, 100)
+  sigma.b ~ dunif(0, 100)
+  sigma.y ~ dunif(0, 100)
   
   # What's a good prior for x0?
-  # x0 ~ dnorm(0, 0.0001)%_%I(1.0, 17.5)
-  x0 ~ dlnorm(0, 0.01)%_%I(0, 25)
-  # x0 ~ dunif(1.0, 17.5)
+  x0 ~ dnorm(0, 0.0001)%_%I(1.0, 17.5)  # truncated to experimental range
 
 }
 
@@ -120,21 +147,16 @@ data.list <- with(bladder,
 
 # Parameter estimates from model fit based on centered volume
 bladder$volume.centered <- bladder$volume - mean(bladder$volume)
-fit <- lmer(HD ~ volume.centered + I(volume.centered^2) + (0+1|subject) +
-              (0+volume|subject), data = bladder)
+fit <- lmer(HD ~ volume.centered + I(volume.centered ^ (2/3)) + 
+              (0 + 1 | subject) + (0 + volume | subject), data = bladder)
 fe <- unname(fixef(fit))
 vc <- as.data.frame(VarCorr(fit))$sdcor
 
 ## Initial values for chain 1
-inits.list <- list(mu.a = fe[1], 
-                   mu.b = fe[2], 
-                   mu.c = fe[3], 
-                   sigma.a = vc[1], 
-                   sigma.b = vc[2], 
-                   sigma.y = vc[3], 
-                   x0 = 11.10487, 
-                   .RNG.name = "base::Mersenne-Twister", 
-                   .RNG.seed = 2)
+inits.list <- list(mu.a = fe[1], mu.b = fe[2], mu.c = fe[3], 
+                   sigma.a = vc[1], sigma.b = vc[2], sigma.y = vc[3], 
+                   x0 = invest(original.lme, y0 = 100, interval = "none"), 
+                   .RNG.name = "base::Mersenne-Twister", .RNG.seed = 2)
 
 # JAGS model
 sim <- jags.model("bladder-bayes-original.txt", data = data.list, 
@@ -148,7 +170,6 @@ fe.post <- sim %>%
   as.matrix()
 plot(fe.coda)
 
-
 # Variance components posterior
 vc.post <- sim %>%
   coda.samples(c("tau.a", "tau.b", "tau.y"), n.iter = 100000, thin = 10) %T>%
@@ -157,7 +178,8 @@ vc.post <- sim %>%
 
 # Unknown posterior
 x0.post <- sim %>%
-  coda.samples("x0", n.iter = 100000, thin = 10) %>%
+  coda.samples("x0", n.iter = 100000, thin = 10) %T>%
+  plot() %>%
   as.matrix() %>%
   as.numeric()
 
@@ -175,16 +197,16 @@ lines(density(x0.post), col = "red2", lwd = 2)
 ## JAGS model for transformed data ---------------------------------------------
 
 ## Model file
-model2 <- function() {
+model.transformed <- function() {
   
-  ## Likelihood
+  # Likelihood
   for (i in 1:n) {
     y[i] ~ dnorm(mu[i], tau.y)
     mu[i] <- a[subject[i]] + b[subject[i]]*(x[i]-mean(x[]))
   }
   y0 ~ dnorm(mu.a0 + mu.b0*(x0-mean(x[])), tau.y)
   
-  ## Random effects
+  # Random effects
   for (j in 1:m) {
     a[j] ~ dnorm(mu.a, tau.a)
     b[j] ~ dnorm(mu.b, tau.b)
@@ -192,7 +214,7 @@ model2 <- function() {
   mu.a0 ~ dnorm(mu.a, tau.a)
   mu.b0 ~ dnorm(mu.b, tau.b)
   
-  ## Priors
+  # Priors
   mu.a ~     dnorm(0, 0.0001)  
   mu.b ~     dnorm(0, 0.0001)  
   tau.a <-   pow(sigma.a, -2)  
@@ -202,42 +224,64 @@ model2 <- function() {
   sigma.b ~  dunif(0, 100)
   sigma.y ~  dunif(0, 100)
   
-  ## What's a good prior for x0?
-#     x0 ~ dnorm(0, 0.0001)%_%I(1.0, 17.5)
-  x0 ~ dlnorm(0, 0.01)%_%I(0, 25)
-  #   x0 ~ dunif(1.0, 17.5)
+  # What's a good prior for x0?
+  # x0 ~ dnorm(0, 0.0001)%_%I(1.0, 17.5)
+  x0 ~ dnorm(0, 0.0001)%_%I(0, 10000)
+  # x0 ~ dlnorm(0, 0.01)%_%I(0, 25)
+  # x0 ~ dunif(1.0, 17.5)
   
 }
-model.file2 <- "/home/w108bmg/Desktop/Dropbox/Bladder data/bladder2.txt"
-R2OpenBUGS::write.model(model2, con = model.file2)
+
+# Write model to file
+R2OpenBUGS::write.model(model.transformed, 
+                        con = "bladder-bayes-transformed.txt")
 
 ## Data
-data.list2 <- with(bladder2, list(y = HD, x = volume, subject = subject, 
-                                  y0 = 80^(3/2), 
-                                  n = length(HD), m = length(unique(subject))))
+data.list2 <- with(bladder, 
+  list(y = HD ^ (3/2), x = volume, subject = subject, y0 = 80^(3/2), 
+       n = length(HD), m = length(unique(subject)))
+)
 
 ## Parameter estimates from model fit based on centered volume
-fit2 <- lmer(HD ~ I(volume-mean(volume)) + (0+1|subject) + (0+volume|subject), 
-             data = bladder2)
+fit2 <- lmer(HD ^ (3/2) ~ I(volume - mean(volume)) + (0 + 1 | subject) + 
+               (0 + volume | subject), data = bladder)
 fe2 <- unname(fixef(fit2))
 vc2 <- as.data.frame(VarCorr(fit2))$sdcor
 
 ## Initial values for chain 1
-inits.list2 <- list(mu.a = fe2[1], mu.b = fe2[2], sigma.a = vc2[1], 
-                    sigma.b = vc2[2], sigma.y = vc2[3], x0 = 11.13502, 
-                    .RNG.name = "base::Mersenne-Twister", .RNG.seed = 2)
+inits.list2 <- list(mu.a = fe2[1], 
+                    mu.b = fe2[2], 
+                    sigma.a = vc2[1], 
+                    sigma.b = vc2[2], 
+                    sigma.y = vc2[3], 
+                    x0 = 11.13502, 
+                    .RNG.name = "base::Mersenne-Twister", 
+                    .RNG.seed = 2)
 
 ## JAGS model
-sim2 <- jags.model(model.file2, data = data.list2, inits = inits.list2)
+sim2 <- jags.model("bladder-bayes-transformed.txt", data = data.list2, 
+                   inits = inits.list2)
 update(sim2, n.iter = 10000)  # burn-in
-# fe.coda2 <- coda.samples(sim2, c("mu.a", "mu.b"), n.iter = 100000, thin = 10)
-# vc.coda2 <- coda.samples(sim2, c("tau.a", "tau.b", "tau.y"), n.iter = 100000, thin = 10)
-x0.coda2 <- coda.samples(sim2, "x0", n.iter = 100000, thin = 10)
-x0.post2 <- as.numeric(as.matrix(x0.coda2))  # convert to matrix
 
-# plot(fe.coda2)
-# plot(vc.coda2)
-plot(x0.coda2)
+# Fixed-effects posterior
+fe.post <- sim %>%
+  coda.samples(c("mu.a", "mu.b", "mu.c"), n.iter = 100000, thin = 10) %T>%
+  plot() %>%
+  as.matrix()
+plot(fe.coda)
+
+# Variance components posterior
+vc.post <- sim2 %>%
+  coda.samples(c("tau.a", "tau.b", "tau.y"), n.iter = 100000, thin = 10) %T>%
+  plot() %>%
+  as.matrix()
+
+# Unknown posterior
+x0.post <- sim2 %>%
+  coda.samples("x0", n.iter = 100000, thin = 10) %T>%
+  plot() %>%
+  as.matrix() %>%
+  as.numeric()
 
 ## Compare to bootstrap distribution
 x0.boot2 <- na.omit(pb.bladder2$t[, 1])
