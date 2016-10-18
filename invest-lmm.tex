@@ -73,7 +73,7 @@
 \newcommand{\SE}{\operatorname{SE}}
 \newcommand{\E}{\operatorname{E}}
 
-\title{Inverse Estimation with Linear Mixed-Effects Models and its Application in the \texttt{R} Programming Language}
+\title{Inverse Estimation with Linear Mixed-Effects Models}
 \author{Brandon M. Greenwell\\Infoscitex, a DCS company \\ and \\
         Christine M. Schubert Kabban\\Air Force Institute of Technology}
 \date{\today}
@@ -100,7 +100,7 @@ Keep it to 200 words or less.
 
 This paper concerns inverse estimation with linear mixed-effects models (LMMs). Consider an ordinary regression model $\mathcal{Y}_i = f\left(x_i; \bm{\beta} \right) + \epsilon_i$ $(i = 1, \dotsc, n)$, where $f$ is a known expectation function (called a \emph{calibration curve}) that is monotonic over the range of interest and $\epsilon_i \stackrel{iid}{\sim} \mathcal{N}\left( 0, \sigma^2 \right)$.  A common problem in regression is to predict a future response $\mathcal{Y}_0$ (or estimate the mean response $f_0 = \E\left[\mathcal{Y}_0\right]$) for a known value of the explanatory variable $x_0$.  Often, however, there is a need to do the reverse; that is, given an observed value of the response $\mathcal{Y} = y_0$ (or a specified value of the mean response), infer the unknown value of the explanatory variable $x_0$.  This is known as the \emph{calibration problem}, though we refer to it more generally as inverse estimation.  A thorough overview of the calibration problem is given in \citet{osborne-statistical-1991}.  \citet{oman-calibration-1998} considers the case of a random intercept and slope model. 
 
-In this paper, we discuss inverse estimation in the more general context of linear mixed-effects models. In Section~\ref{sec:point}, we extend the classical inverse estimate. Section~\ref{sec:wald} and Section~\ref{sec:inversion} discuss approximate interval estimates by extending the classical Wald and inversion methods, respectively. Section~\ref{sec:boot} introduces a fully parametric bootstrap algorithm for making inference on $x_0$. Section~\ref{sec:bayesian} attempts to compare the results to an objective Bayesian approach.
+In Section~\ref{sec:point}, we extend the classical inverse estimate. Section~\ref{sec:wald} and Section~\ref{sec:inversion} discuss approximate interval estimates by extending the classical Wald and inversion methods, respectively. Section~\ref{sec:boot} introduces a fully parametric bootstrap algorithm for making inference on $x_0$. 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -317,9 +317,9 @@ The percentile method is the simplest and is given by the sample $\alpha/2$ and 
 The percentile interval is transformation respecting; thus, if we want a confidence interval for any one-to-one transformation $g\left(\widehat{x}_0\right)$, then we can just apply the transformation to the endpoints of the percentile interval for $\widehat{x}_0$.  The drawback is that the percentile interval is only \emph{first-order accurate} (see \citet[pp. 429-430]{boos-essential-2013}).  \citet{efron-better-1987} offered an improvement over the percentile interval called the \emph{bias-corrected and accelerated} ($BC_a$) interval that often obtains second-order accuracy and is transformation respecting.  However, the recommended \texttt{R} package \texttt{boot} \citep{canty-boot-2013} we will be relying on currently does not allow for $BC_a$ confidence intervals to be constructed from a parametric bootstrap.
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{A bootstrap $t$ interval for $x_0$}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 A bootstrap $t$ interval for $x_0$ is essentially a bootstrap adjusted Wald-type interval.  The Wald interval for $x_0$ \eqref{eqn:wald} assumes that
 \[
@@ -332,9 +332,9 @@ Rather than assuming that $Q_W$ is normal, the bootstrap $t$ method uses the boo
 In order to implement this method, we need to calculate the standard error of each bootstrap replicate.  To do this, we can either use an additional (nested) bootstrap to estimate the standard error, or use a Taylor series approximation as discussed in Section~\ref{sec:wald}.  If time is  not a factor, then the nested bootstrap is preferred since bootstrap standard errors are usually more accurate than those based on a first-order Taylor series approximation \citep[pp. 478-480]{casella-statistical-2002}.  The benefits of using this interval over \eqref{eqn:wald} are that (a) it does not assume normality (hence, likely to be more accurate in smaller sample sizes) and (b) it is not symmetric about $\widehat{x}_0$; thus, more realistic when the response is nonlinear in $x$ (e.g., polynomials, etc.).
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{A bootstrap adjusted inversion interval for $x_0$}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \citet{huet-statistical-2004} suggests a bootstrap modification of the usual inversion interval in nonlinear regression models with dependent data.  In a similar fashion, we could use the parametric bootstrap to adjust the approximate inversion interval given in Equation~\eqref{eqn:inversion}.  The inversion interval assumes that the \emph{predictive pivot}
 \[
@@ -351,35 +351,35 @@ to estimate the true distribution of $Q_I$.  If $\widehat{F}_{Q_I}$ is the empir
 \vspace{25pt}
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{An objective Bayesian approach}
-\label{sec:bayesian}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-Just for fun, let us compare the parametric bootstrap results from the transformed data against those from a simple Bayesian analysis using modern MCMC techniques.  In particular, we are interested in comparing the posterior distribution of $x_0$ from a Bayesian model against the bootstrap distribution of $\widehat{x}_0$ obtained in Section~\ref{sec:lme4}.  Our Bayesian analysis was compiled using \texttt{JAGS} \citep{plummer-jags-2003} via the \texttt{R} package \texttt{rjags} \citep{plummer-rjags-2014}.  Our JAGS model follows closely with the approach outlined in \citet{hamada-bayesian-2003}.
-
-Let $\pi(\cdot)$ denote a probability density function.  Following \citet{hoadley-bayesian-1970}, we assume that the calibration experiment contains no information about $x_0$ and that the priors for $x_0$ and the calibration experiment are independent; that is,
-\begin{equation*}
-  \pi(x_0, \bm{\beta}, \bm{b}, \sigma, \bm{\theta}) = \pi(x_0)\pi(\bm{\beta}, \bm{b}, \sigma, \bm{\theta}).
-\end{equation*}
-The (unnormalized) posterior density of $(x_0, \bm{\beta}, \bm{b}, \sigma, \bm{\theta})$ is given by
-\begin{align*}
-  \pi(x_0, \bm{\beta}, \bm{b}, \sigma, \bm{\theta} | \mathbf{data}) &= \pi(x_0, \bm{\beta}, \bm{b}, \sigma, \bm{\theta} | \bm{y}, y_0) \\
-  &\propto \pi(\bm{y}, y_0 | x_0, \bm{\beta}, \bm{b}, \sigma, \bm{\theta})\pi(x_0, \bm{\beta}, \bm{b}, \sigma, \bm{\theta}) \\
-  &\propto \pi(y_0 | x_0, \bm{\beta}, \sigma, \bm{\theta})\pi(\bm{y} | \bm{\beta}, \bm{b}, \sigma, \bm{\theta})\pi(\bm{\beta}, \bm{b}, \sigma, \bm{\theta})\pi(x_0) \\
-  &\propto \pi(y_0 | x_0, \bm{\beta}, \sigma, \bm{\theta})\pi(\bm{y} | \bm{\beta}, \bm{b}, \sigma, \bm{\theta})\pi(\bm{\beta})\pi(\bm{b}|\bm{\theta})\pi(\sigma)\pi(\bm{\theta})\pi(x_0),
-\end{align*}
-where $\bm{y}$ and $y_0$ represent the observed data from the first and second stages of the calibration experiment, respectively.
-
-The LMM \eqref{eqn:lmm-stacked} already has $\bm{b} \sim \mathcal{N}\left(0, \bm{D}\left(\bm{\theta}\right)\right)$.  A fully Bayesian approach, however, requires a prior distribution on the parameters $(\bm{\beta}, \sigma^2, \bm{\theta}, x_0)$; here, $\bm{\theta} = \left(\theta_0^2, \theta_1^2\right)$.  Rather than assigning a prior to the variance components, we will instead assign priors to the standard deviations, which in turn induces priors on the variance components.  Following standard convention (and since we do not have any available prior information), we assume, a priori, that the fixed-effects are independent and assign vague, independent priors to $\left(\bm{\beta}, \sigma, \theta_0, \theta_1\right)$.  We used the proper but diffuse priors
-\begin{align*}
-  \beta_i &\sim \mathcal{N}\left(0, 10000\right), \quad i = 0, 1, \\
-  \sigma &\sim \mathcal{U}\left(0, 100\right), \\
-  \theta_j &\sim \mathcal{U}\left(0, 100\right), \quad j = 0, 1.
-\end{align*}
-In addition, since the unknown volume must be positive, we assigned $x_0$ a truncated normal prior that is restricted to the positive real numbers.  We obtained 9,999 draws after discarding the first 1,000 for burn-in.  Some thinning was required to reduce autocorrelation in the posterior samples for the variance components and $x_0$.  A small summary of the marginal posterior of $x_0$ is given below.
-
-A kernel density estimate of the posterior draws is shown in the left panel of Figure~\ref{fig:boot-post} along with a kernel density estimate of the bootstrap replicates of $\widehat{x}_0$ obtained in the previous section.  The two distributions are comparable, but there is a slight discrepancy in the tails (the posterior is slightly more positively skewed).  A 95\% Bayesian credible interval for $x_0$ is $(?, ?)$, which is slightly shorter than the asymptotic and bootstrap confidence intervals given in Table~\ref{tab:summary}.
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \section{An objective Bayesian approach}
+% \label{sec:bayesian}
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 
+% Just for fun, let us compare the parametric bootstrap results from the transformed data against those from a simple Bayesian analysis using modern MCMC techniques.  In particular, we are interested in comparing the posterior distribution of $x_0$ from a Bayesian model against the bootstrap distribution of $\widehat{x}_0$ obtained in Section~\ref{sec:lme4}.  Our Bayesian analysis was compiled using \texttt{JAGS} \citep{plummer-jags-2003} via the \texttt{R} package \texttt{rjags} \citep{plummer-rjags-2014}.  Our JAGS model follows closely with the approach outlined in \citet{hamada-bayesian-2003}.
+% 
+% Let $\pi(\cdot)$ denote a probability density function.  Following \citet{hoadley-bayesian-1970}, we assume that the calibration experiment contains no information about $x_0$ and that the priors for $x_0$ and the calibration experiment are independent; that is,
+% \begin{equation*}
+%   \pi(x_0, \bm{\beta}, \bm{b}, \sigma, \bm{\theta}) = \pi(x_0)\pi(\bm{\beta}, \bm{b}, \sigma, \bm{\theta}).
+% \end{equation*}
+% The (unnormalized) posterior density of $(x_0, \bm{\beta}, \bm{b}, \sigma, \bm{\theta})$ is given by
+% \begin{align*}
+%   \pi(x_0, \bm{\beta}, \bm{b}, \sigma, \bm{\theta} | \mathbf{data}) &= \pi(x_0, \bm{\beta}, \bm{b}, \sigma, \bm{\theta} | \bm{y}, y_0) \\
+%   &\propto \pi(\bm{y}, y_0 | x_0, \bm{\beta}, \bm{b}, \sigma, \bm{\theta})\pi(x_0, \bm{\beta}, \bm{b}, \sigma, \bm{\theta}) \\
+%   &\propto \pi(y_0 | x_0, \bm{\beta}, \sigma, \bm{\theta})\pi(\bm{y} | \bm{\beta}, \bm{b}, \sigma, \bm{\theta})\pi(\bm{\beta}, \bm{b}, \sigma, \bm{\theta})\pi(x_0) \\
+%   &\propto \pi(y_0 | x_0, \bm{\beta}, \sigma, \bm{\theta})\pi(\bm{y} | \bm{\beta}, \bm{b}, \sigma, \bm{\theta})\pi(\bm{\beta})\pi(\bm{b}|\bm{\theta})\pi(\sigma)\pi(\bm{\theta})\pi(x_0),
+% \end{align*}
+% where $\bm{y}$ and $y_0$ represent the observed data from the first and second stages of the calibration experiment, respectively.
+% 
+% The LMM \eqref{eqn:lmm-stacked} already has $\bm{b} \sim \mathcal{N}\left(0, \bm{D}\left(\bm{\theta}\right)\right)$.  A fully Bayesian approach, however, requires a prior distribution on the parameters $(\bm{\beta}, \sigma^2, \bm{\theta}, x_0)$; here, $\bm{\theta} = \left(\theta_0^2, \theta_1^2\right)$.  Rather than assigning a prior to the variance components, we will instead assign priors to the standard deviations, which in turn induces priors on the variance components.  Following standard convention (and since we do not have any available prior information), we assume, a priori, that the fixed-effects are independent and assign vague, independent priors to $\left(\bm{\beta}, \sigma, \theta_0, \theta_1\right)$.  We used the proper but diffuse priors
+% \begin{align*}
+%   \beta_i &\sim \mathcal{N}\left(0, 10000\right), \quad i = 0, 1, \\
+%   \sigma &\sim \mathcal{U}\left(0, 100\right), \\
+%   \theta_j &\sim \mathcal{U}\left(0, 100\right), \quad j = 0, 1.
+% \end{align*}
+% In addition, since the unknown volume must be positive, we assigned $x_0$ a truncated normal prior that is restricted to the positive real numbers.  We obtained 9,999 draws after discarding the first 1,000 for burn-in.  Some thinning was required to reduce autocorrelation in the posterior samples for the variance components and $x_0$.  A small summary of the marginal posterior of $x_0$ is given below.
+% 
+% A kernel density estimate of the posterior draws is shown in the left panel of Figure~\ref{fig:boot-post} along with a kernel density estimate of the bootstrap replicates of $\widehat{x}_0$ obtained in the previous section.  The two distributions are comparable, but there is a slight discrepancy in the tails (the posterior is slightly more positively skewed).  A 95\% Bayesian credible interval for $x_0$ is $(?, ?)$, which is slightly shorter than the asymptotic and bootstrap confidence intervals given in Table~\ref{tab:summary}.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -391,10 +391,9 @@ Here, we discuss how to implement the previous procedures in the \texttt{R} prog
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% The investr package
+\subsection[The investr package]{The \texttt{investr} package}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\subsection[The investr package]{The \texttt{investr} package}
 The \texttt{R} package \texttt{investr} facilitates calibration/inverse estimation with linear and nonlinear regression models.  The main function, \texttt{invest}, can be used for inverse estimation of $x_0$ given an observed response $y_0$.  More recently, the package has been updated to also handle objects of class \texttt{lme} from the \texttt{nlme} package.  Current functionality includes both the Wald-based and inversion methods outlined in Sections \ref{sec:wald}-\ref{sec:inversion}.  The important arguments for this function (as it applies to \texttt{"lme"} objects) are noted in Table~\ref{tab:invest} below.  The code for the package is hosted on GitHub at \url{https://github.com/bgreenwell/investr}, but the latest stable release can be found on CRAN at \url{https://CRAN.R-project.org/package=investr}.
 
 \begin{table}[!htb]
@@ -496,9 +495,11 @@ numerically for $x$ using \texttt{uniroot}. To use the quantiles from a $t$~dist
 \end{knitrout}
 Being able to specify the arguments \texttt{q1} and \texttt{q2} will also be useful when implementing the bootstrap adjusted inversion interval described in Section~\ref{sec:parboot}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Monte Carlo Study}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 To assess the empirical performance of these confidence intervals, we carried out a small Monte Carlo study. The simulations described below were conducted in \texttt{R} using packages \texttt{plyr} \citep{wickham-plyr-2011}, \texttt{nlme}, and \texttt{lme4} \citep{bates-lme4-2014}.  The results are reported in Table~\ref{tab:simulation} and indicate that the Wald-based confidence interval \eqref{eqn:wald} and inversion confidence interval \eqref{eqn:inversion} have asymptotic coverage probability close to $100(1-\alpha)\%$.  This experiment also highlighted the fact that it is the number of subject $m$, not the sample size per subject $n$, that is more important for good asymptotic coverage.  The code used for the simulation is available upon request.
 
 We consider the values 5, 10, 30, 50, and 100 for both the number of subjects $m$ and and the number of observations per subject $n$.  For each combination of sample sizes, we generated 1,000 data sets from a random intercept and slope model with parameters given by those listed in \texttt{summary(transformed.lme)}.  In other words, the fixed-effects were $\bm{\beta} = \left(-53.83164, 69.09491\right)\trans$, the standard deviations for the (uncorrelated) random intercept and slope were 39.62499, and 14.28841, respectively.  The residual standard deviation was $\sigma = 53.71511$.  We chose $f\left(x_0; \bm{\beta}\right) = 500$ so that the true unknown is $x_0 = 8.0155$.  The standard deviation of the coverage estimates is approximately $\sqrt{0.95\left(1-0.95\right)/1000} = 0.001$.  A trellis plot of the results is given in Figure~\ref{fig:simulation}.  The coverage estimates are plotted against the number of subjects $m$ and paneled by number of observations per subject $n$.
@@ -532,10 +533,12 @@ We consider the values 5, 10, 30, 50, and 100 for both the number of subjects $m
 {\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): could not find function "{}xyplot"{}}}\end{kframe}
 \end{knitrout}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection[Using the lme4 package]{Using the \texttt{lme4} package}
 \label{sec:lme4}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 Implementation of the parametric bootstrap algorithm in Figure~\ref{fig:parboot} is relatively straight forward using the new \texttt{bootMer} function from the well-known \texttt{R} package \texttt{lme4} \citep{bates-lme4-2014} in conjunction with the \texttt{boot} package.
 
 \begin{knitrout}
@@ -551,16 +554,16 @@ Since we will be using the \texttt{lme4} package, we need to refit the model usi
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlkwd{library}\hlstd{(lme4)}
-\hlstd{fit.lme4} \hlkwb{<-} \hlkwd{lmer}\hlstd{(HD}\hlopt{^}\hlstd{(}\hlnum{3}\hlopt{/}\hlnum{2}\hlstd{)} \hlopt{~} \hlstd{volume} \hlopt{+} \hlstd{(}\hlnum{0}\hlopt{+}\hlnum{1}\hlopt{|}\hlstd{subject)} \hlopt{+}
-                   \hlstd{(}\hlnum{0}\hlopt{+}\hlstd{volume}\hlopt{|}\hlstd{subject),} \hlkwc{data} \hlstd{= bladder)}
+\hlstd{transformed.lme4} \hlkwb{<-} \hlkwd{lmer}\hlstd{(HD} \hlopt{^} \hlstd{(}\hlnum{3} \hlopt{/} \hlnum{2}\hlstd{)} \hlopt{~} \hlstd{volume} \hlopt{+} \hlstd{(}\hlnum{0} \hlopt{+} \hlnum{1} \hlopt{|} \hlstd{subject)} \hlopt{+}
+                           \hlstd{(}\hlnum{0} \hlopt{+} \hlstd{volume} \hlopt{|} \hlstd{subject),} \hlkwc{data} \hlstd{= bladder)}
 \end{alltt}
 \end{kframe}
 \end{knitrout}
-Theoretically, the parameter estimates from this model should be the same as those from \texttt{transformed.lme}; however, there are likely to be small numerical differences between the two.  For this reason, let us re-estimate $\widehat{x}_0$ using \texttt{fit.lme4}.  Since \texttt{invest} does not work on objects of class \texttt{lmer}, we have to do things manually:
+Theoretically, the parameter estimates from this model should be the same as those from \texttt{transformed.lme}; however, there are likely to be small numerical differences between the two.  For this reason, let us re-estimate $\widehat{x}_0$ using \texttt{transformed.lme4}.  Since \texttt{invest} does not work on objects of class \texttt{"lmer"}, we have to do things manually:
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{fe} \hlkwb{<-} \hlkwd{unname}\hlstd{(}\hlkwd{fixef}\hlstd{(fit.lme4))}  \hlcom{# fixed-effects}
+\hlstd{fe} \hlkwb{<-} \hlkwd{unname}\hlstd{(}\hlkwd{fixef}\hlstd{(transformed.lme4))}  \hlcom{# fixed-effects}
 \hlstd{(x0.est} \hlkwb{<-} \hlstd{(}\hlnum{500} \hlopt{-} \hlstd{fe[}\hlnum{1}\hlstd{])} \hlopt{/} \hlstd{fe[}\hlnum{2}\hlstd{])}
 \end{alltt}
 \begin{verbatim}
@@ -579,7 +582,7 @@ Also, for convenience, we define the following function which estimates $\VAR\le
 \end{alltt}
 \end{kframe}
 \end{knitrout}
-For example, to estimate $\sigma_0^2 = \widehat{\VAR}\left[\mathcal{Y}_0\right]$, we have \texttt{varY(fit.lme4, x = x0.est)}, which gives \ensuremath{1.757\times 10^{4}}, the same value used in the previous section.
+For example, to estimate $\sigma_0^2 = \widehat{\VAR}\left[\mathcal{Y}_0\right]$, we have \texttt{varY(transformed.lme4, x = x0.est)}, which gives \ensuremath{1.757\times 10^{4}}, the same value used in the previous section.
 
 Although we could easily compute all the bootstrap intervals previously discussed in one call to \texttt{bootMer} and \texttt{boot.ci}, we will discuss and compute each interval separately.
 
@@ -587,7 +590,7 @@ The following snippet of code generates $R = 9999$ bootstrap replicates of $\wid
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{pb} \hlkwb{<-} \hlkwd{bootMer}\hlstd{(fit.lme4,} \hlkwc{nsim} \hlstd{=} \hlnum{9}\hlstd{,} \hlkwc{seed} \hlstd{=} \hlnum{105}\hlstd{,} \hlkwc{FUN} \hlstd{=} \hlkwa{function}\hlstd{(}\hlkwc{.}\hlstd{) \{}
+\hlstd{pboot} \hlkwb{<-} \hlkwd{bootMer}\hlstd{(transformed.lme4,} \hlkwc{nsim} \hlstd{=} \hlnum{9}\hlstd{,} \hlkwc{seed} \hlstd{=} \hlnum{105}\hlstd{,} \hlkwc{FUN} \hlstd{=} \hlkwa{function}\hlstd{(}\hlkwc{.}\hlstd{) \{}
 
   \hlcom{# Point estimate}
   \hlstd{var.Y0.boot} \hlkwb{<-} \hlkwd{varY}\hlstd{(.,} \hlkwc{x} \hlstd{= x0.est)}  \hlcom{# VAR[Y0]}
@@ -622,22 +625,22 @@ The following snippet of code generates $R = 9999$ bootstrap replicates of $\wid
 \end{alltt}
 \end{kframe}
 \end{knitrout}
-The \texttt{bootMer} function returns an object of class \texttt{boot} which can then be processed via the \texttt{boot} package to obtain the various bootstrap confidence intervals discussed earlier.  A basic summary of \texttt{pb} is given by
+The \texttt{bootMer} function returns an object of class \texttt{boot} which can then be processed via the \texttt{boot} package to obtain the various bootstrap confidence intervals discussed earlier.  A basic summary of \texttt{pboot} is given by
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlkwd{library}\hlstd{(boot)}  \hlcom{# load boot package}
-\hlkwd{summary}\hlstd{(pb)}
+\hlkwd{summary}\hlstd{(pboot)}
 \end{alltt}
 \begin{verbatim}
-##   R original bootBias bootSE bootMed
-## 1 9     8.02    0.460  1.369   8.815
-## 2 9     3.82   -0.581  0.873   3.348
-## 3 9     0.00    0.244  0.848   0.438
+##      R original bootBias bootSE bootMed
+## 1 9999     8.02 -0.00219  1.974  8.0186
+## 2 9999     1.95 -0.00330  0.256  1.9417
+## 3 9999     0.00 -0.00810  1.004  0.0016
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
-The estimated standard error and bias of $\widehat{x}_0$, based on \texttt{R = 9} bootstrap replicates, are 1.369 and \ensuremath{-0.581}, respectively.  The original estimate $\widehat{x}_0$ and the median of the bootstrap replicates are also given in the first row of the summary.  A graphical summary of the bootstrap simulation is given in Figure~\ref{fig:boot-plots}.  These graphs indicate that the sampling distributions of $\widehat{x}_0$, $Q_W$, and $Q_I$ are all approximately normal; hence, we would expect the bootstrap confidence intervals to be similar to the asymptotic methods based on the normal distribution discussed in Sections~\ref{sec:wald}-\ref{sec:inversion}.
+The estimated standard error and bias of $\widehat{x}_0$, based on \texttt{R = 9999} bootstrap replicates, are 1.974 and \ensuremath{-0.003}, respectively.  The original estimate $\widehat{x}_0$ and the median of the bootstrap replicates are also given in the first row of the summary.  A graphical summary of the bootstrap simulation is given in Figure~\ref{fig:boot-plots}.  These graphs indicate that the sampling distributions of $\widehat{x}_0$, $Q_W$, and $Q_I$ are all approximately normal; hence, we would expect the bootstrap confidence intervals to be similar to the asymptotic methods based on the normal distribution discussed in Sections~\ref{sec:wald}-\ref{sec:inversion}.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[!htb]
 \includegraphics[width=\linewidth]{figure/boot-plots-1} \caption[Graphical summary of bootstrap replicates]{Graphical summary of bootstrap replicates. $R = 9,999$ bootstrap replicates of $\widehat{x}_0$ (left), $Q_W$ (middle), and $Q_I$ (right).}\label{fig:boot-plots}
@@ -649,23 +652,19 @@ To obtain the percentile and studentized $t$ intervals (see Sections~\ref{sec:pe
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlkwd{boot.ci}\hlstd{(pb,} \hlkwc{type} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"norm"}\hlstd{,} \hlstr{"perc"}\hlstd{,} \hlstr{"stud"}\hlstd{))}
+\hlkwd{boot.ci}\hlstd{(pboot,} \hlkwc{type} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"norm"}\hlstd{,} \hlstr{"perc"}\hlstd{,} \hlstr{"stud"}\hlstd{))}
 \end{alltt}
 \begin{verbatim}
 ## BOOTSTRAP CONFIDENCE INTERVAL CALCULATIONS
-## Based on 9 bootstrap replicates
+## Based on 9999 bootstrap replicates
 ## 
 ## CALL : 
-## boot.ci(boot.out = pb, type = c("norm", "perc", "stud"))
+## boot.ci(boot.out = pboot, type = c("norm", "perc", "stud"))
 ## 
 ## Intervals : 
 ## Level      Normal            Studentized          Percentile     
-## 95%   ( 4.87, 10.24 )   ( 4.10,  9.36 )   ( 7.00, 11.14 )  
+## 95%   ( 4.15, 11.89 )   ( 4.25, 11.95 )   ( 4.05, 11.91 )  
 ## Calculations and Intervals on Original Scale
-## Warning : Studentized Intervals used Extreme Quantiles
-## Some studentized intervals may be unstable
-## Warning : Percentile Intervals used Extreme Quantiles
-## Some percentile intervals may be unstable
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -673,19 +672,19 @@ For comparison, we also included the option to compute a bootstrap normal-approx
 \[
   \left( \widehat{x}_0- \texttt{bootBias} \right) \pm z_{\alpha/2}\texttt{bootSE}
 \]
-where \texttt{bootBias} and \texttt{bootSE} can be found in the first row of \texttt{summary(pb)}.  In other words, it is just a Wald-type interval that uses a bias-corrected estimate of $x_0$, along with a bootstrap estimate of the standard error of $\widehat{x}_0$.  While this may be more accurate than the ordinary Wald-based interval \eqref{eqn:wald}, it may still not perform well in small sample sizes because of the strict normality assumption.  In this example, however, normality does not appear to be an issue.
+where \texttt{bootBias} and \texttt{bootSE} can be found in the first row of \texttt{summary(pboot)}.  In other words, it is just a Wald-type interval that uses a bias-corrected estimate of $x_0$, along with a bootstrap estimate of the standard error of $\widehat{x}_0$.  While this may be more accurate than the ordinary Wald-based interval \eqref{eqn:wald}, it may still not perform well in small sample sizes because of the strict normality assumption.  In this example, however, normality does not appear to be an issue.
 
 The bootstrap adjusted inversion interval can be computed as easily as the ordinary inversion interval, except we need to supply \texttt{invest} with the estimated quantiles $\widehat{F}_{Q_I}\left(0.025\right)$ and $\widehat{F}_{Q_I}\left(0.975\right)$:
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{QI.boot} \hlkwb{<-} \hlstd{pb}\hlopt{$}\hlstd{t[,} \hlnum{3}\hlstd{]}  \hlcom{# bootsrap replicates of Q_I}
+\hlstd{QI.boot} \hlkwb{<-} \hlstd{pboot}\hlopt{$}\hlstd{t[,} \hlnum{3}\hlstd{]}  \hlcom{# bootsrap replicates of Q_I}
 \hlstd{qvals} \hlkwb{<-} \hlkwd{quantile}\hlstd{(QI.boot,} \hlkwd{c}\hlstd{(}\hlnum{0.025}\hlstd{,} \hlnum{0.975}\hlstd{))}  \hlcom{# sample quantiles}
 \hlkwd{invest}\hlstd{(transformed.lme,} \hlkwc{y0} \hlstd{=} \hlnum{500}\hlstd{,} \hlkwc{q1} \hlstd{= qvals[}\hlnum{1}\hlstd{],} \hlkwc{q2} \hlstd{= qvals[}\hlnum{2}\hlstd{])}
 \end{alltt}
 \begin{verbatim}
 ## estimate    lower    upper 
-##     8.02     4.62     9.30
+##     8.02     4.28    12.02
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -702,37 +701,26 @@ All of the approximate 95\% confidence intervals we computed for the true volume
   \midrule
   $CI_{wald}\left(x_0\right)$                 & 8.016 & 1.954 & (4.185, 11.846) & 7.66 \\
   $CI_{inv}\left(x_0\right)$            & 8.016 &  ---            & (4.228, 11.919) & 7.691 \\
-  $CI_{percentile}\boot\left(x_0\right)$     & 8.016 & 1.369 & (6.996, 11.143) & 4.147 \\
-  $CI_{wald}\boot\left(x_0\right)$           & 8.016 & 1.369 & (4.099, 9.363) & 5.264 \\
-  $CI_{inv}\boot\left(x_0\right)$      & 8.016 & 1.369 & (4.623, 9.303) & 4.68 \\
+  $CI_{percentile}\boot\left(x_0\right)$     & 8.016 & 1.974 & (4.05, 11.913) & 7.863 \\
+  $CI_{wald}\boot\left(x_0\right)$           & 8.016 & 1.974 & (4.252, 11.947) & 7.695 \\
+  $CI_{inv}\boot\left(x_0\right)$      & 8.016 & 1.974 & (4.278, 12.019) & 7.741 \\
 %   Bayesian (uniform prior)    & 8.445     & 1.825 & (4.629, 11.921) & 7.292 \\
   \bottomrule
 \end{tabular}
 \caption{Summary of results for the bladder volume example.  A $\star$ symbol indicates a parametric bootstrap-based confidence interval. \label{tab:summary}}
 \end{table}
 
-Suppose instead that we observed a new value \texttt{HD = 60} and we wish to estimate the true volume of liquid in the patients bladder using the original data.  The point estimate is easily obtained using the quadratic formula: $\widehat{x}_0 = 11.105$.  Recall, from Figure~\ref{fig:spaghetti} that each patient has a slightly nonlinear trajectory; thus, there is no reason to expect the sampling distribution of $\widehat{x}_0$ to be normal, or even symmetric in this case.  To see that this is indeed the case, we applied the parametric bootstrap.  The results are summarized in Figure~\ref{fig:boot-plots-2}.  Clearly, the Wald-based confidence interval \eqref{eqn:wald} will not be accurate in this case.  However, the approximate predictive pivot used in the inversion interval \eqref{eqn:inversion} appears reasonably normal.  Thus, our recommendation is that, if the number of subjects $m$ is reasonably large (say $m \ge 25$) and the bootstrap replicates are approximately normal (see Figure~\ref{fig:boot-plots}), then the Wald-based and inversion methods are useful.  Otherwise, it is probably best to stick with the parametric bootstrap confidence intervals or, if prior information is available, adopt a fully Bayesian approach.
-\begin{knitrout}
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[!htb]
-\includegraphics[width=\linewidth]{figure/boot-plots-2-1} \caption[Graphical summary of bootstrap replicates]{Graphical summary of bootstrap replicates. $R = 9,999$ bootstrap replicates of $\widehat{x}_0$ (left), $Q_W$ (middle), and $Q_I$ (right).}\label{fig:boot-plots-2}
-\end{figure}
 
-
-\end{knitrout}
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Conclusion
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Conclusion}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 We have discussed a number of confidence interval procedures for statistical calibration in linear models with random coefficients with a single level of grouping.  We have described two \texttt{R} packages for implementing these procedures: \texttt{investr} and \texttt{lme4}.  The \texttt{investr} package can be used for obtaining the asymptotic confidence intervals (i.e., the Wald-based and inversion confidence intervals).  We also showed how the \texttt{lme4} package can be used to obtain calibration intervals based on a parametric bootstrap using the recently added \texttt{bootMer} function.  Future work will likely extend the methods discussed in this paper to more complicated cases such as nonlinear mixed-effects models and multi-level hierarchical models (i.e., more than one grouping variable).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Bibliography
+\bibliography{invest-lmm.bib}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\bibliography{invest-lmm.bib}
 
 \end{document}

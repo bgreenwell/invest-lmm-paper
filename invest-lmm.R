@@ -4,12 +4,13 @@
 
 # Load required packages
 library(boot)
-library(ggplot2)
 library(investr)
+library(ggplot2)
 library(lme4)
+library(magrittr)
 library(nlme)
-library(RColorBrewer)
-cols <- brewer.pal(9, "Set1")
+library(RColorBrewer); cols <- brewer.pal(9, "Set1")
+library(rjags)
 
 # Bladder data
 subject <- as.factor(rep(1:23, times = 8))
@@ -209,3 +210,93 @@ qqline(x0.stud)
 qqnorm(QI.boot, main = "", xlab = "Normal quantile", ylab = "Sample quantile",
        col = cols[3])
 qqline(QI.boot)
+
+
+################################################################################
+# Bayesianapproach
+################################################################################
+
+# Model file
+model <- function() {
+  
+  # Likelihood
+  for (i in 1:n) {
+    y[i] ~ dnorm(mu[i], tau.y)
+    mu[i] <- a[subject[i]] + b[subject[i]]*(x[i]-mean(x[]))
+  }
+  y0 ~ dnorm(mu.a0 + mu.b0*(x0-mean(x[])), tau.y)
+  
+  # Random effects
+  for (j in 1:m) {
+    a[j] ~ dnorm(mu.a, tau.a)
+    b[j] ~ dnorm(mu.b, tau.b)
+  }
+  mu.a0 ~ dnorm(mu.a, tau.a)
+  mu.b0 ~ dnorm(mu.b, tau.b)
+  
+  # Priors
+  mu.a ~     dnorm(0, 0.0001)  
+  mu.b ~     dnorm(0, 0.0001)  
+  tau.a <-   pow(sigma.a, -2)  
+  tau.b <-   pow(sigma.b, -2)
+  tau.y <-   pow(sigma.y, -2)
+  sigma.a ~  dunif(0, 100)
+  sigma.b ~  dunif(0, 100)
+  sigma.y ~  dunif(0, 100)
+  
+  # What's a good prior for x0?
+  x0 ~ dnorm(0, 0.0001)%_%I(1, 17.5)
+  
+}
+
+# Write model to file
+R2OpenBUGS::write.model(model, con = "bladder-bayes.txt")
+
+# Data
+data.list <- with(bladder, 
+  list(y = HD ^ (3/2), x = volume, subject = subject, y0 = 500, 
+       n = length(HD), m = length(unique(subject)))
+)
+
+# Parameter estimates from model fit based on centered volume
+fit <- lmer(HD ^ (3/2) ~ I(volume - mean(volume)) + (0 + 1 | subject) + 
+              (0 + volume | subject), data = bladder)
+fe <- unname(fixef(fit))
+vc <- as.data.frame(VarCorr(fit))$sdcor
+
+# Initial values for chain 1
+inits.list <- list(mu.a = fe[1], 
+                   mu.b = fe[2], 
+                   sigma.a = vc[1], 
+                   sigma.b = vc[2], 
+                   sigma.y = vc[3], 
+                   x0 = 8.015521, 
+                   .RNG.name = "base::Mersenne-Twister", 
+                   .RNG.seed = 2)
+
+# JAGS model
+sim <- jags.model("bladder-bayes.txt", data = data.list, inits = inits.list)
+update(sim, n.iter = 10000)  # burn-in
+
+# Fixed-effects posterior
+fe.post <- sim %>%
+  coda.samples(c("mu.a", "mu.b", "mu.c"), n.iter = 100000, thin = 10) %T>%
+  plot() %>%
+  as.matrix()
+plot(fe.coda)
+
+# Variance components posterior
+vc.post <- sim %>%
+  coda.samples(c("tau.a", "tau.b", "tau.y"), n.iter = 100000, thin = 10) %T>%
+  plot() %>%
+  as.matrix()
+
+# Unknown posterior
+x0.post <- sim %>%
+  coda.samples("x0", n.iter = 100000, thin = 10) %T>%
+  plot() %>%
+  as.matrix() %>%
+  as.numeric()
+
+# Save results
+save(x0.post, file = "/home/w108bmg/Desktop/Dropbox/x0post.RData")
