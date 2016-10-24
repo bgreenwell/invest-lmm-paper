@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2016.4.30)  23 OCT 2016 20:08
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2016.4.30)  23 OCT 2016 20:31
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -360,166 +360,153 @@ Overfull \hbox (2.02834pt too wide) in paragraph at lines 101--102
 [1
 
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}]
-LaTeX Font Info:    Try loading font information for OMS+cmr on input line 118.
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 122.
 
 
 (/usr/share/texlive/texmf-dist/tex/latex/base/omscmr.fd
 File: omscmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 118.
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 122.
  [2]
-Package color Info: Redefining color shadecolor on input line 168.
+Package color Info: Redefining color shadecolor on input line 172.
 
 <figure/spaghetti-1.pdf, id=110, 578.16pt x 289.08pt>
 File: figure/spaghetti-1.pdf Graphic file (type pdf)
 
 <use figure/spaghetti-1.pdf>
-Package pdftex.def Info: figure/spaghetti-1.pdf used on input line 169.
+Package pdftex.def Info: figure/spaghetti-1.pdf used on input line 173.
 (pdftex.def)             Requested size: 345.0pt x 172.49655pt.
- [3 <./figure/spaghetti-1.pdf>] [4] [5] [6]
+ [3] [4 <./figure/spaghetti-1.pdf>] [5] [6]
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `math shift' on input line 336.
-
-
-Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `subscript' on input line 336.
+(hyperref)                removing `math shift' on input line 340.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `math shift' on input line 336.
+(hyperref)                removing `subscript' on input line 340.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
+(hyperref)                removing `math shift' on input line 340.
 
 [7]
-Overfull \hbox (23.53926pt too wide) in paragraph at lines 417--435
+Overfull \hbox (23.53926pt too wide) in paragraph at lines 421--439
  [][] 
  []
 
 [8]
-Package color Info: Redefining color shadecolor on input line 439.
- <figure/simulation-1.pdf, id=249, 505.89pt x 361.35pt>
+Package color Info: Redefining color shadecolor on input line 443.
+ <figure/simulation-1.pdf, id=249, 578.16pt x 289.08pt>
 File: figure/simulation-1.pdf Graphic file (type pdf)
 
 <use figure/simulation-1.pdf>
-Package pdftex.def Info: figure/simulation-1.pdf used on input line 440.
-(pdftex.def)             Requested size: 345.0pt x 246.43153pt.
+Package pdftex.def Info: figure/simulation-1.pdf used on input line 444.
+(pdftex.def)             Requested size: 345.0pt x 172.49655pt.
  (./invest-lmm.bbl [9] [10 <./figure/simulation-1.pdf>])
 LaTeX Font Info:    Font shape `OT1/cmtt/bx/n' in size <14.4> not available
-(Font)              Font shape `OT1/cmtt/m/n' tried instead on input line 465.
- [11]
+(Font)              Font shape `OT1/cmtt/m/n' tried instead on input line 469.
 LaTeX Font Info:    Font shape `OT1/cmtt/bx/n' in size <12> not available
-(Font)              Font shape `OT1/cmtt/m/n' tried instead on input line 471.
-Package color Info: Redefining color shadecolor on input line 499.
+(Font)              Font shape `OT1/cmtt/m/n' tried instead on input line 475.
+ [11]
+Package color Info: Redefining color shadecolor on input line 503.
 LaTeX Font Info:    Font shape `OT1/cmtt/bx/n' in size <10> not available
-(Font)              Font shape `OT1/cmtt/m/n' tried instead on input line 501.
-Package color Info: Redefining color shadecolor on input line 513.
+(Font)              Font shape `OT1/cmtt/m/n' tried instead on input line 505.
+Package color Info: Redefining color shadecolor on input line 517.
+Package color Info: Redefining color shadecolor on input line 530.
  [12]
-Package color Info: Redefining color shadecolor on input line 526.
-
-Overfull \hbox (39.98277pt too wide) in paragraph at lines 531--531
-[][]\OT1/cmtt/m/n/10 covmat[[][]1[][]:[][]2[][],[] []1[][]:[][]2[][]][] []<-[] 
-[]vcov[][](transformed.lme)[]  []\OT1/cmtt/m/it/10 # fixed-effects var/cov matr
-ix[][] 
- []
-
-Package color Info: Redefining color shadecolor on input line 545.
-Package color Info: Redefining color shadecolor on input line 561.
-
-LaTeX Warning: Reference `sec:parboot' on page 13 undefined on input line 572.
-
-[13]
-Package color Info: Redefining color shadecolor on input line 583.
-Package color Info: Redefining color shadecolor on input line 592.
-
-Overfull \hbox (11.99689pt too wide) in paragraph at lines 595--595
-[][]\OT1/cmtt/m/n/10 transformed.lmer[] []<-[] []lmer[][](HD[] []^[] []([][]3[]
- []/[] []2[][])[] []~[] []volume[] []+[] []([][]0[] []+[] []1[] []|[] []subject
-)[] []+[][] 
- []
+Package color Info: Redefining color shadecolor on input line 549.
+Package color Info: Redefining color shadecolor on input line 565.
 
 
-Overfull \hbox (1.49698pt too wide) in paragraph at lines 596--596
+LaTeX Warning: Reference `sec:parboot' on page 13 undefined on input line 576.
+
+Package color Info: Redefining color shadecolor on input line 586.
+Package color Info: Redefining color shadecolor on input line 595.
+
+Overfull \hbox (1.49698pt too wide) in paragraph at lines 599--599
 []                           []\OT1/cmtt/m/n/10 ([][]0[] []+[] []volume[] []|[]
  []subject),[] []data[] []= bladder)[][] 
  []
 
-Package color Info: Redefining color shadecolor on input line 602.
-Package color Info: Redefining color shadecolor on input line 614.
+Package color Info: Redefining color shadecolor on input line 605.
+[13]
+Package color Info: Redefining color shadecolor on input line 617.
 
-Overfull \hbox (27.3324pt too wide) in paragraph at lines 612--614
+Overfull \hbox (27.3324pt too wide) in paragraph at lines 615--617
 []\OT1/cmr/m/n/10 Also, for con-ve-nience, we de-fine the fol-low-ing func-tion
  which es-ti-mates $[] [] =
  []
 
-LaTeX Font Info:    Try loading font information for OMS+cmtt on input line 616
+LaTeX Font Info:    Try loading font information for OMS+cmtt on input line 619
 .
 (/usr/share/R/share/texmf/tex/latex/omscmtt.fd
 File: omscmtt.fd 
 )
 LaTeX Font Info:    Font shape `OMS/cmtt/m/n' in size <10> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 616.
-Package color Info: Redefining color shadecolor on input line 629.
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 619.
+Package color Info: Redefining color shadecolor on input line 632.
 
-Overfull \hbox (53.74658pt too wide) in paragraph at lines 631--631
-[][]\OT1/cmtt/m/n/10 pboot[] []<-[] []bootMer[][](transformed.lmer,[] []nsim[] 
-[]=[] []9[][],[] []seed[] []=[] []105[][],[] []FUN[] []=[] []function[][]([][].
-[][]) \OMS/cmsy/m/n/10 f[][] 
+Overfull \hbox (11.74695pt too wide) in paragraph at lines 634--634
+[][]\OT1/cmtt/m/n/10 pboot[] []<-[] []bootMer[][](fit.lmer,[] []nsim[] []=[] []
+9[][],[] []seed[] []=[] []105[][],[] []FUN[] []=[] []function[][]([][].[][]) \O
+MS/cmsy/m/n/10 f[][] 
  []
 
 
-Overfull \hbox (27.74675pt too wide) in paragraph at lines 650--650
+Overfull \hbox (27.74675pt too wide) in paragraph at lines 653--653
 []  []\OT1/cmtt/m/n/10 dm[] []<-[] []car[][]::[][]deltaMethod[][](params,[] []g
 [] []=[] []"(y0 - b0) / b1"[][],[]  []vcov.[] []= covmat)[][] 
  []
 
 
-Overfull \hbox (11.99689pt too wide) in paragraph at lines 657--657
+Overfull \hbox (11.99689pt too wide) in paragraph at lines 660--660
 []  []\OT1/cmtt/m/n/10 QI.boot[] []<-[] [](y0.boot[] []-[] []mu0.boot)[] []/[] 
 []sqrt[][](var.Y0.boot[] []+[] []var.mu0.boot)[][] 
  []
 
 [14]
-Package color Info: Redefining color shadecolor on input line 668.
-Package color Info: Redefining color shadecolor on input line 683.
+Package color Info: Redefining color shadecolor on input line 671.
+Package color Info: Redefining color shadecolor on input line 686.
  <figure/boot-plots-1.pdf, id=309, 505.89pt x 289.08pt>
 File: figure/boot-plots-1.pdf Graphic file (type pdf)
 
 <use figure/boot-plots-1.pdf>
-Package pdftex.def Info: figure/boot-plots-1.pdf used on input line 684.
+Package pdftex.def Info: figure/boot-plots-1.pdf used on input line 687.
 (pdftex.def)             Requested size: 345.0pt x 197.14522pt.
- [15]
-
-LaTeX Warning: Reference `sec:percentile' on page 16 undefined on input line 68
-9.
 
 
-LaTeX Warning: Reference `sec:student' on page 16 undefined on input line 689.
+LaTeX Warning: Reference `sec:percentile' on page 15 undefined on input line 69
+2.
 
-Package color Info: Redefining color shadecolor on input line 691.
-[16 <./figure/boot-plots-1.pdf>]
-Package color Info: Redefining color shadecolor on input line 717.
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 730.
- [17]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 730.
+
+LaTeX Warning: Reference `sec:student' on page 15 undefined on input line 692.
+
+Package color Info: Redefining color shadecolor on input line 694.
+[15]
+Package color Info: Redefining color shadecolor on input line 720.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 733.
+ [16 <./figure/boot-plots-1.pdf>]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 733.
  (./invest-lmm.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 730.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 730.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 733.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 733.
 Package rerunfilecheck Info: File `invest-lmm.out' has not changed.
 (rerunfilecheck)             Checksum: 98821D0B561C81DBE323291EA966ADE5;794.
 
 
 LaTeX Warning: There were undefined references.
 
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 730.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 733.
  ) 
 Here is how much of TeX's memory you used:
- 6505 strings out of 494953
- 93980 string characters out of 6180977
+ 6504 strings out of 494953
+ 93973 string characters out of 6180977
  187060 words of memory out of 5000000
  9621 multiletter control sequences out of 15000+600000
  16065 words of font info for 59 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 29i,10n,31p,1271b,443s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 29i,10n,31p,1263b,447s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbsy10.pfb></u
 sr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/sha
 re/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/tex
@@ -543,10 +530,10 @@ msfonts/cm/cmti10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfont
 s/cm/cmtt10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/c
 mtt12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt8.p
 fb>
-Output written on invest-lmm.pdf (17 pages, 2024973 bytes).
+Output written on invest-lmm.pdf (16 pages, 2024368 bytes).
 PDF statistics:
- 424 PDF objects out of 1000 (max. 8388607)
- 371 compressed objects within 4 object streams
- 74 named destinations out of 1000 (max. 500000)
+ 420 PDF objects out of 1000 (max. 8388607)
+ 368 compressed objects within 4 object streams
+ 73 named destinations out of 1000 (max. 500000)
  120 words of extra memory for PDF output out of 10000 (max. 10000000)
 

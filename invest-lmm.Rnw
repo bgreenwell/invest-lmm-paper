@@ -88,7 +88,11 @@ Keep it to 200 words or less.
 
 This paper concerns inverse estimation with linear mixed-effects models (LMMs). Consider an ordinary regression model $\mathcal{Y}_i = f\left(x_i; \bm{\beta} \right) + \epsilon_i$ $(i = 1, \dotsc, n)$, where $f$ is a known expectation function (called a \emph{calibration curve}) that is monotonic over the range of interest and $\epsilon_i \stackrel{iid}{\sim} \mathcal{N}\left( 0, \sigma^2 \right)$.  A common problem in regression is to predict a future response $\mathcal{Y}_0$ (or estimate the mean response $f_0 = \E\left[\mathcal{Y}_0\right]$) for a known value of the explanatory variable $x_0$.  Often, however, there is a need to do the reverse; that is, given an observed value of the response $\mathcal{Y} = y_0$ (or a specified value of the mean response), infer the unknown value of the explanatory variable $x_0$.  This is known as the \emph{calibration problem}, though we refer to it more generally as inverse estimation.  A thorough overview of the calibration problem is given in \citet{osborne-statistical-1991}.  \citet{oman-calibration-1998} considers the case of a random intercept and slope model. 
 
+The majority of literature on inverse estimation, however, concerns \textit{cross-sectional data}---?. In this paper, we expand this to the case of \textit{dependent data} (e.g., \textit{longitudinal data} or \textit{repeated measures data}). Analyzing these types of data is more theoretically challenging, but fortunately, modern day computers and algorithms make this a rather simple task.
+
 In Section~\ref{sec:point}, we extend the classical inverse estimate. Section~\ref{sec:wald} and Section~\ref{sec:inversion} discuss approximate interval estimates by extending the classical Wald and inversion methods, respectively. Section~\ref{sec:boot} introduces a fully parametric bootstrap algorithm for making inference on $x_0$. 
+
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -150,7 +154,7 @@ For illustration, let us consider the bladder volume data which can be found in 
 \begin{quotation}
 \noindent``A series of 23 women patients attending a urodynamic clinic were recruited for the study. After successful voiding of the bladder, sterile water was introduced in additions of 1, 1.5, and then 2.5 cl increments up to a final cumulative total of 17.5 cl. At each volume a measure of height (\texttt{H}) in mm and depth (\texttt{D}) in mm of largest ultrasound bladder images were taken. The product \texttt{H} $\times$ \texttt{D} was taken as a measure of liquid volume.''
 \end{quotation}
-We took Brown's suggestion and transformed the data so that the relationship is approximately linear.  Spaghettiplots of both the original and transformed data are displayed in Figure~\ref{fig:spaghetti}.
+We took Brown's suggestion and transformed the data so that the relationship is approximately linear.  Spaghetti plots of both the original and transformed data are displayed in Figure~\ref{fig:spaghetti}.
 
 <<spaghetti, echo=FALSE, fig.width=8, fig.height=4, out.width='\\linewidth', fig.cap='Spaghettiplot of bladder volume data (lines connect measurements belonging to the same subject). \\textit{Left}: Original data. \\textit{Right}: Transformed data.', fig.pos='!htb'>>=
 p1 <- ggplot(bladder, aes(x = volume, y = HD, 
@@ -179,10 +183,10 @@ A random intercept and slope model with uncorrelated random-effects fits the tra
 where $\COV\left[b_{0i}, b_{1i}\right] = 0$.  Table~\ref{tab:transformed-lmm} displays the fixed-effects results from applying this model to the transformed bladder volume data. %To fit such a model in \texttt{R}, we can use the recommended \texttt{nlme} package \citep{pinheiro-nlme-2013}:
 
 <<echo=FALSE>>=
-transformed.lme <- lme(HD ^ (3 / 2) ~ volume, 
+fit.lme <- lme(HD ^ (3 / 2) ~ volume, 
                        random = list(subject = pdDiag( ~ volume)),
                        data = bladder)
-# knitr::kable(summary(transformed.lme)$tTable, format = "latex", digits = 3)
+# knitr::kable(summary(fit.lme)$tTable, format = "latex", digits = 3)
 @
 
 \begin{table}
@@ -388,9 +392,9 @@ All of the approximate 95\% confidence intervals we computed for the true volume
 
 <<table setup, echo=FALSE>>=
 # LMM, etc.
-transformed.lmer <- lmer(HD ^ (3 / 2) ~ volume + (0 + 1 | subject) + 
+fit.lmer <- lmer(HD ^ (3 / 2) ~ volume + (0 + 1 | subject) + 
                            (0 + volume | subject), data = bladder)
-fe <- unname(fixef(transformed.lmer))  # fixed-effects
+fe <- unname(fixef(fit.lmer))  # fixed-effects
 x0.est <- (500 - fe[1]) / fe[2]
 varY <- function(object, x) {
   vc <- as.data.frame(lme4::VarCorr(object))$vcov
@@ -398,16 +402,16 @@ varY <- function(object, x) {
 }
 
 # Wald interval
-wald <- invest(transformed.lme, y0 = 500, interval = "Wald")
+wald <- invest(fit.lme, y0 = 500, interval = "Wald")
 
 # Inversion interval
-inversion <- invest(transformed.lme, y0 = 500)
+inversion <- invest(fit.lme, y0 = 500)
 
 # Boostrap-adjusted inversion interval
 QI.boot <- pboot$t[, 3]  # bootsrap replicates of Q_I
 qvals <- quantile(QI.boot, c(0.025, 0.975))  # sample quantiles
 inversion.pboot <- 
-  invest(transformed.lme, y0 = 500, q1 = qvals[1], q2 = qvals[2])
+  invest(fit.lme, y0 = 500, q1 = qvals[1], q2 = qvals[2])
 
 # Standard bootstrap intervals
 # se.boot <- summary(pboot)$bootSE[1]
@@ -448,7 +452,7 @@ Notice that all of the bootstrap-based confidence intervals for $x_0$ (indicated
 
 To assess the empirical performance of these confidence intervals, we carried out a small Monte Carlo study\footnote{The simulation described in this section was conducted in \texttt{R} using packages \texttt{plyr} \citep{wickham-plyr-2011}, \texttt{nlme}, and \texttt{lme4} \citep{bates-lme4-2014}.}. The results are reported in Table~\ref{tab:simulation} and indicate that the Wald-based confidence interval \eqref{eqn:wald} and inversion confidence interval \eqref{eqn:inversion} have asymptotic coverage probability close to $100(1-\alpha)\%$.  This experiment also highlighted the fact that it is the number of subject $m$, not the sample size per subject $n$, that is more important for good asymptotic coverage.  The code used for the simulation is available upon request.
 
-We consider the values 5, 10, 30, 50, and 100 for both the number of subjects $m$ and and the number of observations per subject $n$.  For each combination of sample sizes, we generated 1,000 data sets from a random intercept and slope model with parameters given by those listed in \texttt{summary(transformed.lme)}.  In other words, the fixed-effects were $\bm{\beta} = \left(-53.83164, 69.09491\right)\trans$, the standard deviations for the (uncorrelated) random intercept and slope were 39.62499, and 14.28841, respectively.  The residual standard deviation was $\sigma = 53.71511$.  We chose $f\left(x_0; \bm{\beta}\right) = 500$ so that the true unknown is $x_0 = 8.0155$.  The standard deviation of the coverage estimates is approximately $\sqrt{0.95\left(1-0.95\right)/1000} = 0.001$.  A trellis plot of the results is given in Figure~\ref{fig:simulation}.  The coverage estimates are plotted against the number of subjects $m$ and paneled by number of observations per subject $n$. The results indicate that the number of subject, $m$, is the real driver in terms of asymptotic coverage probability. It seems that $m \ge 30$ with $n \ge 5$ is sufficient for achieving close to the stated $1 - \alpha$ coverage probability of. 
+We consider the values 5, 10, 30, 50, and 100 for both the number of subjects $m$ and and the number of observations per subject $n$.  For each combination of sample sizes, we generated 1,000 data sets from a random intercept and slope model with parameters given by those listed in \texttt{summary(fit.lme)}.  In other words, the fixed-effects were $\bm{\beta} = \left(-53.83164, 69.09491\right)\trans$, the standard deviations for the (uncorrelated) random intercept and slope were 39.62499, and 14.28841, respectively.  The residual standard deviation was $\sigma = 53.71511$.  We chose $f\left(x_0; \bm{\beta}\right) = 500$ so that the true unknown is $x_0 = 8.0155$.  The standard deviation of the coverage estimates is approximately $\sqrt{0.95\left(1-0.95\right)/1000} = 0.001$.  A trellis plot of the results is given in Figure~\ref{fig:simulation}.  The coverage estimates are plotted against the number of subjects $m$ and paneled by number of observations per subject $n$. The results indicate that the number of subject, $m$, is the real driver in terms of asymptotic coverage probability. It seems that $m \ge 30$ with $n \ge 5$ is sufficient for achieving close to the stated $1 - \alpha$ coverage probability of. 
 \begin{table}[!htb]
 \centering
 \begin{tabular}{llccccc}
@@ -472,7 +476,7 @@ We consider the values 5, 10, 30, 50, and 100 for both the number of subjects $m
 \caption{Coverage probability of 95\% confidence intervals for simulated bladder data. \label{tab:simulation}}
 \end{table}%\vskip18pt
 
-<<simulation, echo=FALSE, fig.width=7, fig.height=5, fig.cap='Coverage probability of 95\\% confidence intervals for simulated bladder data. The coverage estimates based on the inversion method are colored blue.', fig.pos='!htb'>>=
+<<simulation, echo=FALSE, fig.width=8, fig.height=4, fig.cap='Coverage probability of 95\\% confidence intervals for simulated bladder data. The coverage estimates based on the inversion method are colored blue.', fig.pos='!htb'>>=
 cp <- c(0.89, 0.89, 0.89, 0.87, 0.89, 0.89, 0.90, 0.89, 0.88, 0.90, 0.92, 0.92,
         0.94, 0.93, 0.93, 0.92, 0.92, 0.94, 0.94, 0.93, 0.95, 0.95, 0.95, 0.94,
         0.95, 0.94, 0.94, 0.94, 0.94, 0.95, 0.95, 0.96, 0.95, 0.94, 0.94, 0.94,
@@ -544,21 +548,21 @@ Returning to the bladder volume example, suppose we obtained an ultrasound measu
 This estimate can be obtained in \texttt{R} as follows:
 <<>>=
 library(investr)
-invest(transformed.lme, y0 = 500, interval = "none")
+invest(fit.lme, y0 = 500, interval = "none")
 @
 \texttt{invest} relies on the root finding function \texttt{uniroot} from the \texttt{stats} package to solve the equation $f\left(x; \widehat{\bm{\beta}}\right) - y_0 = 0$ numerically for $x$.  
 
 When \texttt{interval = "Wald"}, an asymptotic $100(1-\alpha)\%$ confidence interval (where $\alpha$ is equal to \texttt{1 - level}) for $x_0$ is calculated according to Equation~\eqref{eqn:wald}. The standard error is computed using a First-order Taylor series approximation by calling the \texttt{stats} function \texttt{numericDeriv} to numerically evaluate the gradient of $\widehat{x}_0$ as a function of $y_0$ and the fixed-effects $\widehat{\bm{\beta}}$.
 <<>>=
-invest(transformed.lme, y0 = 500, interval = "Wald")
+invest(fit.lme, y0 = 500, interval = "Wald")
 @
 
 Alternatively, one can use the very useful \texttt{deltaMethod} function from the \texttt{car} package to obtain \texttt{se}:
 <<>>=
 library(car)  # assuming package car is already installed
-params <- c(fixef(transformed.lme), 500)
+params <- c(fixef(fit.lme), 500)
 covmat <- diag(3)  # set up var/cov matrix
-covmat[1:2, 1:2] <- vcov(transformed.lme)  # fixed-effects var/cov matrix
+covmat[1:2, 1:2] <- vcov(fit.lme)  # fixed-effects var/cov matrix
 covmat[3, 3] <-  17572.35  # VAR[Y_0]
 names(params) <- c("b0", "b1", "y0")
 deltaMethod(params, g = "(y0 - b0)/b1",  vcov. = covmat)$SE
@@ -567,7 +571,7 @@ The only drawback here is that \texttt{deltaMethod} relies on the \texttt{stats}
 
 To obtain the inversion interval \eqref{eqn:inversion}, we set \texttt{interval = "inversion"} (the default) in the call to invest:
 <<>>=
-invest(transformed.lme, y0 = 500, interval = "inversion")
+invest(fit.lme, y0 = 500, interval = "inversion")
 @
 Essentially, \texttt{invest} finds the lower and upper inversion confidence limits \eqref{eqn:inversion} by solving the equations
 \begin{equation*}
@@ -576,7 +580,7 @@ Essentially, \texttt{invest} finds the lower and upper inversion confidence limi
 numerically for $x$ using \texttt{uniroot}. To use the quantiles from a $t$~distribution instead (see Section~\ref{sec:inversion}), we can supply them via the arguments \texttt{q1} and \texttt{q2}:
 <<>>=
 tvals <- qt(c(0.025, 0.975), df = nrow(bladder) - 1)
-invest(transformed.lme, y0 = 500, q1 = tvals[1L], q2 = tvals[2L])
+invest(fit.lme, y0 = 500, q1 = tvals[1L], q2 = tvals[2L])
 @
 Being able to specify the arguments \texttt{q1} and \texttt{q2} will also be useful when implementing the bootstrap adjusted inversion interval described in Section~\ref{sec:parboot}
 
@@ -587,20 +591,19 @@ Being able to specify the arguments \texttt{q1} and \texttt{q2} will also be use
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Implementation of the parametric bootstrap algorithm in Figure~\ref{fig:parboot} is relatively straight forward using the new \texttt{bootMer} function from the well-known \texttt{R} package \texttt{lme4} \citep{bates-lme4-2014} in conjunction with the \texttt{boot} package.
-
-<<>>=
-# install.packages("investr", "lme4")
+<<eval=FALSE>>=
+install.packages("investr", "lme4")
 @
 
 Since we will be using the \texttt{lme4} package, we need to refit the model using the \texttt{lmer} function:
 <<>>=
 library(lme4)
-transformed.lmer <- lmer(HD ^ (3 / 2) ~ volume + (0 + 1 | subject) + 
+fit.lmer <- lmer(HD ^ (3 / 2) ~ volume + (0 + 1 | subject) + 
                            (0 + volume | subject), data = bladder)
 @
-Theoretically, the parameter estimates from this model should be the same as those from \texttt{transformed.lme}; however, there are likely to be small numerical differences between the two.  For this reason, let us re-estimate $\widehat{x}_0$ using \texttt{transformed.lmer}.  Since \texttt{invest} does not work on objects of class \texttt{"lmer"}, we have to do things manually:
+Theoretically, the parameter estimates from this model should be the same as those from \texttt{fit.lme}; however, there are likely to be small numerical differences between the two.  For this reason, let us re-estimate $\widehat{x}_0$ using \texttt{fit.lmer}.  Since \texttt{invest} does not work on objects of class \texttt{"lmer"}, we have to do things manually:
 <<>>=
-fe <- unname(fixef(transformed.lmer))  # fixed-effects
+fe <- unname(fixef(fit.lmer))  # fixed-effects
 (x0.est <- (500 - fe[1]) / fe[2])
 @
 Also, for convenience, we define the following function which estimates $\VAR\left[\mathcal{Y}|x\right] = \sigma_0^2 + x^2\sigma_1^2 + \sigma^2$ for a given value of $x$:
@@ -610,13 +613,13 @@ varY <- function(object, x) {
   vc[1] + vc[2]*x^2 + vc[3]
 }
 @
-For example, to estimate $\sigma_0^2 = \widehat{\VAR}\left[\mathcal{Y}_0\right]$, we have \texttt{varY(transformed.lmer, x = x0.est)}, which gives \Sexpr{varY(transformed.lmer, x = x0.est)}, the same value used in the previous section.
+For example, to estimate $\sigma_0^2 = \widehat{\VAR}\left[\mathcal{Y}_0\right]$, we have \texttt{varY(fit.lmer, x = x0.est)}, which gives \Sexpr{varY(fit.lmer, x = x0.est)}, the same value used in the previous section.
 
 Although we could easily compute all the bootstrap intervals previously discussed in one call to \texttt{bootMer} and \texttt{boot.ci}, we will discuss and compute each interval separately.
 
 The following snippet of code generates $R = 9999$ bootstrap replicates of $\widehat{x}_0$, $Q_W$, and $Q_I$ according to the algorithm in Figure~\ref{fig:parboot}:
 <<eval=FALSE>>=
-pboot <- bootMer(transformed.lmer, nsim = 9, seed = 105, FUN = function(.) {
+pboot <- bootMer(fit.lmer, nsim = 9, seed = 105, FUN = function(.) {
 
   # Point estimate
   var.Y0.boot <- varY(., x = x0.est)  # VAR[Y0]
@@ -697,7 +700,7 @@ The bootstrap adjusted inversion interval can be computed as easily as the ordin
 <<>>=
 QI.boot <- pboot$t[, 3]  # bootsrap replicates of Q_I
 qvals <- quantile(QI.boot, c(0.025, 0.975))  # sample quantiles
-invest(transformed.lme, y0 = 500, q1 = qvals[1], q2 = qvals[2])
+invest(fit.lme, y0 = 500, q1 = qvals[1], q2 = qvals[2])
 @
 
 \end{document}
