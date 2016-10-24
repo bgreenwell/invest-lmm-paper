@@ -254,7 +254,7 @@ Since $\mathcal{Y}_0$ is independent of $\bm{\mathcal{Y}}$, it is also independe
 \end{align}
 To obtain $\SE\left[\widehat{x}_0\right] = \Big\{ \widehat{\VAR}\left[\widehat{x}_0\right] \Big\}^{1/2}$, we simply replace $\sigma_0^2$ and $\bm{V}$ with their respective estimates $\widehat{\sigma}_0^2$ and $\widehat{\bm{V}}$.
 
-The Wald-based interval is simple to compute as long as we have an estimate for the standard error. As we will discuss in Section~\ref{sec:implementation}, the \texttt{R} package \texttt{investr} \citep{investr-package} can be used to obtain the Wald-based interval \eqref{eqn:wald} using a Taylor series approximation of the standard error. If a closed-form formula is available for $\widehat{x}_0$, then the \texttt{deltaMethod} function from the \texttt{car} package \citep{fox-car-2011} can also be used to obtain the Taylor series approximation of the standard error. Alternatively, one can use the parametric bootstrap instead of relying on a Taylor series approximation; see Section~\ref{sec:boot}. The bootstrap estimate may be more accurate in smaller sample sizes because, unlike the Taylor approximation estimate, it takes into account the variability of the estimated variance components. The \texttt{bootMer} function in the \texttt{lme4} package \citep{bates-lme4-2014} can be used for model-based parametric bootstrapping in mixed-effects models.
+The Wald-based interval is simple to compute as long as we have an estimate for the standard error. As we will discuss in Section~\ref{sec:R}, the \texttt{R} package \texttt{investr} \citep{investr-package} can be used to obtain the Wald-based interval \eqref{eqn:wald} using a Taylor series approximation of the standard error. If a closed-form formula is available for $\widehat{x}_0$, then the \texttt{deltaMethod} function from the \texttt{car} package \citep{fox-car-2011} can also be used to obtain the Taylor series approximation of the standard error. Alternatively, one can use the parametric bootstrap instead of relying on a Taylor series approximation; see Section~\ref{sec:boot}. The bootstrap estimate may be more accurate in smaller sample sizes because, unlike the Taylor approximation estimate, it takes into account the variability of the estimated variance components. The \texttt{bootMer} function in the \texttt{lme4} package \citep{bates-lme4-2014} can be used for model-based parametric bootstrapping in mixed-effects models.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -303,33 +303,33 @@ Let $\widehat{\sigma}_0^2$ be an estimate of the variance of the new observation
 \caption{Parametric bootstrap algorithm for linear calibration with random coefficients. \label{fig:parboot}}
 \end{figure}
 
-There are three main bootstrap confidence interval procedures: The percentile methods introduced in \citet{efron-bootstrap-1979}, the studentized bootstrap $t$ method introduced in \citet{efron-jackknife-1982}, and the double bootstrap method \citep{hall-bootstrap-1986}.  In this paper, we focus on the simple percentile interval and the studentized method.  For a good overview of all these confidence interval procedures, see \citet[chap. 5]{hinkley-bootstrap-1997} and \citet[chap. 11]{boos-essential-2013}.
+There are three main bootstrap confidence interval procedures: The percentile methods introduced in \citet{efron-bootstrap-1979}, the studentized bootstrap $t$ method introduced in \citet{efron-jackknife-1982}, and the double bootstrap method \citep{hall-bootstrap-1986}. For a good overview of all these confidence interval procedures, see \citet[chap. 5]{hinkley-bootstrap-1997} and \citet[chap. 11]{boos-essential-2013}. In the next section, we discuss how to use this algorithm to adjust the previously discussed inversion interval.
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{A bootstrap percentile interval for $x_0$}
-
-The percentile method is the simplest and is given by the sample $\alpha/2$ and $1-\alpha/2$ quantiles of the bootstrap sample.  Let $\widehat{x}_{1*}, \dotsc, \widehat{x}_{R*}$ be a bootstrap sample obtained from the algorithm in Figure~\ref{fig:parboot}.  If $\widehat{F}_R$ is the empirical distribution function of the bootstrap sample, then an approximate $100(1-\alpha)\%$ confidence interval for $x_0$ is given by
-\[
-  \left( \widehat{F}_R^{-1}(\alpha/2), \widehat{F}_R^{-1}(1-\alpha/2) \right).
-\]
-The percentile interval is transformation respecting; thus, if we want a confidence interval for any one-to-one transformation $g\left(\widehat{x}_0\right)$, then we can just apply the transformation to the endpoints of the percentile interval for $\widehat{x}_0$.  The drawback is that the percentile interval is only \emph{first-order accurate} (see \citet[pp. 429-430]{boos-essential-2013}).  \citet{efron-better-1987} offered an improvement over the percentile interval called the \emph{bias-corrected and accelerated} ($BC_a$) interval that often obtains second-order accuracy and is transformation respecting.  However, the recommended \texttt{R} package \texttt{boot} \citep{canty-boot-2013} we will be relying on currently does not allow for $BC_a$ confidence intervals to be constructed from a parametric bootstrap.
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{A bootstrap $t$ interval for $x_0$}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-A bootstrap $t$ interval for $x_0$ is essentially a bootstrap adjusted Wald-type interval.  The Wald interval for $x_0$ \eqref{eqn:wald} assumes that
-\[
-  Q_W = \frac{\widehat{x}_0 - x_0}{\SE\left[\widehat{x}_0\right]} \sim \mathcal{N}(0, 1).
-\]
-Rather than assuming that $Q_W$ is normal, the bootstrap $t$ method uses the bootstrap distribution of $Q_W\boot = \left(\widehat{x}_0\boot - \widehat{x}_0\right)/\SE\left[\widehat{x}_0\boot\right]$ to estimate the true distribution of $Q_W$.  If $\widehat{F}_{Q_W}$ is the empirical distribution function for a sample of $R$ bootstrap replicates of $Q_W$, then the bootstrap $t$  interval for $x_0$ is given by
-\[
-    CI_{wald}\boot\left(x_0\right) = \left( \widehat{x}_0 -  \SE\left[\widehat{x}_0\right]\widehat{F}_{Q_W}\left(\alpha/2\right),  \widehat{x}_0 -  \SE\left[\widehat{x}_0\right]\widehat{F}_{Q_W}\left(1-\alpha/2\right) \right).
-\]
-In order to implement this method, we need to calculate the standard error of each bootstrap replicate.  To do this, we can either use an additional (nested) bootstrap to estimate the standard error, or use a Taylor series approximation as discussed in Section~\ref{sec:wald}.  If time is  not a factor, then the nested bootstrap is preferred since bootstrap standard errors are usually more accurate than those based on a first-order Taylor series approximation \citep[pp. 478-480]{casella-statistical-2002}.  The benefits of using this interval over \eqref{eqn:wald} are that (a) it does not assume normality (hence, likely to be more accurate in smaller sample sizes) and (b) it is not symmetric about $\widehat{x}_0$; thus, more realistic when the response is nonlinear in $x$ (e.g., polynomials, etc.).
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \subsection{A bootstrap percentile interval for $x_0$}
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 
+% The percentile method is the simplest and is given by the sample $\alpha/2$ and $1-\alpha/2$ quantiles of the bootstrap sample.  Let $\widehat{x}_{1*}, \dotsc, \widehat{x}_{R*}$ be a bootstrap sample obtained from the algorithm in Figure~\ref{fig:parboot}.  If $\widehat{F}_R$ is the empirical distribution function of the bootstrap sample, then an approximate $100(1-\alpha)\%$ confidence interval for $x_0$ is given by
+% \[
+%   \left( \widehat{F}_R^{-1}(\alpha/2), \widehat{F}_R^{-1}(1-\alpha/2) \right).
+% \]
+% The percentile interval is transformation respecting; thus, if we want a confidence interval for any one-to-one transformation $g\left(\widehat{x}_0\right)$, then we can just apply the transformation to the endpoints of the percentile interval for $\widehat{x}_0$.  The drawback is that the percentile interval is only \emph{first-order accurate} (see \citet[pp. 429-430]{boos-essential-2013}).  \citet{efron-better-1987} offered an improvement over the percentile interval called the \emph{bias-corrected and accelerated} ($BC_a$) interval that often obtains second-order accuracy and is transformation respecting.  However, the recommended \texttt{R} package \texttt{boot} \citep{canty-boot-2013} we will be relying on currently does not allow for $BC_a$ confidence intervals to be constructed from a parametric bootstrap.
+% 
+% 
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \subsection{A bootstrap $t$ interval for $x_0$}
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 
+% A bootstrap $t$ interval for $x_0$ is essentially a bootstrap adjusted Wald-type interval.  The Wald interval for $x_0$ \eqref{eqn:wald} assumes that
+% \[
+%   Q_W = \frac{\widehat{x}_0 - x_0}{\SE\left[\widehat{x}_0\right]} \sim \mathcal{N}(0, 1).
+% \]
+% Rather than assuming that $Q_W$ is normal, the bootstrap $t$ method uses the bootstrap distribution of $Q_W\boot = \left(\widehat{x}_0\boot - \widehat{x}_0\right)/\SE\left[\widehat{x}_0\boot\right]$ to estimate the true distribution of $Q_W$.  If $\widehat{F}_{Q_W}$ is the empirical distribution function for a sample of $R$ bootstrap replicates of $Q_W$, then the bootstrap $t$  interval for $x_0$ is given by
+% \[
+%     CI_{wald}\boot\left(x_0\right) = \left( \widehat{x}_0 -  \SE\left[\widehat{x}_0\right]\widehat{F}_{Q_W}\left(\alpha/2\right),  \widehat{x}_0 -  \SE\left[\widehat{x}_0\right]\widehat{F}_{Q_W}\left(1-\alpha/2\right) \right).
+% \]
+% In order to implement this method, we need to calculate the standard error of each bootstrap replicate.  To do this, we can either use an additional (nested) bootstrap to estimate the standard error, or use a Taylor series approximation as discussed in Section~\ref{sec:wald}.  If time is  not a factor, then the nested bootstrap is preferred since bootstrap standard errors are usually more accurate than those based on a first-order Taylor series approximation \citep[pp. 478-480]{casella-statistical-2002}.  The benefits of using this interval over \eqref{eqn:wald} are that (a) it does not assume normality (hence, likely to be more accurate in smaller sample sizes) and (b) it is not symmetric about $\widehat{x}_0$; thus, more realistic when the response is nonlinear in $x$ (e.g., polynomials, etc.).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -381,38 +381,114 @@ to estimate the true distribution of $Q_I$.  If $\widehat{F}_{Q_I}$ is the empir
 % 
 % A kernel density estimate of the posterior draws is shown in the left panel of Figure~\ref{fig:boot-post} along with a kernel density estimate of the bootstrap replicates of $\widehat{x}_0$ obtained in the previous section.  The two distributions are comparable, but there is a slight discrepancy in the tails (the posterior is slightly more positively skewed).  A 95\% Bayesian credible interval for $x_0$ is $(?, ?)$, which is slightly shorter than the asymptotic and bootstrap confidence intervals given in Table~\ref{tab:summary}.
 
+All of the approximate 95\% confidence intervals we computed for the true volume of fluid are summarized in Table~\ref{tab:summary} below.
+
+
+
+\begin{table}[!htb]
+\centering
+\begin{tabular}{lcccc}
+  \toprule
+  Method                      &  Estimate & SE & 95\% Bounds & Length \\
+  \midrule
+  $CI_{wald}\left(x_0\right)$                 & 8.016 & 1.954 & (4.185, 11.846) & 7.66 \\
+  $CI_{inv}\left(x_0\right)$            & 8.016 &  ---            & (4.228, 11.919) & 7.691 \\
+  $CI_{percentile}\boot\left(x_0\right)$     & 8.016 & 1.974 & (4.05, 11.913) & 7.863 \\
+  $CI_{wald}\boot\left(x_0\right)$           & 8.016 & 1.974 & (4.252, 11.947) & 7.695 \\
+  $CI_{inv}\boot\left(x_0\right)$      & 8.016 & 1.974 & (4.278, 12.019) & 7.741 \\
+%   Bayesian (uniform prior)    & 8.445     & 1.825 & (4.629, 11.921) & 7.292 \\
+  \bottomrule
+\end{tabular}
+\caption{Summary of results for the bladder volume example.  A $\star$ symbol indicates a parametric bootstrap-based confidence interval. \label{tab:summary}}
+\end{table}
+
+Notice that all of the bootstrap-based confidence intervals for $x_0$ (indicated by a $\boot$) are slightly wider than those based on large sample normal theory results. This is likely due to the fact that the large sample intervals do not take into account the variability of the estimated variance components.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section[Implementation in R]{Implementation in \texttt{R}}
-\label{sec:implementation}
+\subsection{Monte Carlo Study}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+To assess the empirical performance of these confidence intervals, we carried out a small Monte Carlo study\footnote{The simulation described in this section was conducted in \texttt{R} using packages \texttt{plyr} \citep{wickham-plyr-2011}, \texttt{nlme}, and \texttt{lme4} \citep{bates-lme4-2014}.}. The results are reported in Table~\ref{tab:simulation} and indicate that the Wald-based confidence interval \eqref{eqn:wald} and inversion confidence interval \eqref{eqn:inversion} have asymptotic coverage probability close to $100(1-\alpha)\%$.  This experiment also highlighted the fact that it is the number of subject $m$, not the sample size per subject $n$, that is more important for good asymptotic coverage.  The code used for the simulation is available upon request.
+
+We consider the values 5, 10, 30, 50, and 100 for both the number of subjects $m$ and and the number of observations per subject $n$.  For each combination of sample sizes, we generated 1,000 data sets from a random intercept and slope model with parameters given by those listed in \texttt{summary(transformed.lme)}.  In other words, the fixed-effects were $\bm{\beta} = \left(-53.83164, 69.09491\right)\trans$, the standard deviations for the (uncorrelated) random intercept and slope were 39.62499, and 14.28841, respectively.  The residual standard deviation was $\sigma = 53.71511$.  We chose $f\left(x_0; \bm{\beta}\right) = 500$ so that the true unknown is $x_0 = 8.0155$.  The standard deviation of the coverage estimates is approximately $\sqrt{0.95\left(1-0.95\right)/1000} = 0.001$.  A trellis plot of the results is given in Figure~\ref{fig:simulation}.  The coverage estimates are plotted against the number of subjects $m$ and paneled by number of observations per subject $n$. The results indicate that the number of subject, $m$, is the real driver in terms of asymptotic coverage probability. It seems that $m \ge 30$ with $n \ge 5$ is sufficient for achieving close to the stated $1 - \alpha$ coverage probability of. 
+\begin{table}[!htb]
+\centering
+\begin{tabular}{llccccc}
+  \toprule
+  %\rule{0pt}{4ex}
+  $m$  & Method    & \hspace{8pt}$n = 5$\hspace{8pt} & \hspace{8pt}$n = 10$\hspace{8pt} & \hspace{8pt}$n = 30$\hspace{8pt} & \hspace{8pt}$n = 50$\hspace{8pt} & \hspace{8pt}$n = 100$ \hspace{8pt} \\
+  \hline
+  %\rule{0pt}{4ex}
+  5    & Wald      & 0.89    & 0.89     & 0.89     & 0.87     & 0.89      \\
+       & Inversion & 0.89    & 0.90     & 0.89     & 0.88     & 0.90      \\ \hline
+  10   & Wald      & 0.92    & 0.92     & 0.94     & 0.93     & 0.93      \\
+       & Inversion & 0.92    & 0.92     & 0.94     & 0.94     & 0.93      \\ \hline
+  30   & Wald      & 0.95    & 0.95     & 0.95     & 0.94     & 0.95      \\
+       & Inversion & 0.94    & 0.94     & 0.94     & 0.94     & 0.95      \\ \hline
+  50   & Wald      & 0.95    & 0.96     & 0.95     & 0.94     & 0.94      \\
+       & Inversion & 0.94    & 0.95     & 0.95     & 0.94     & 0.94      \\ \hline
+  100  & Wald      & 0.95    & 0.95     & 0.95     & 0.94     & 0.94      \\
+       & Inversion & 0.95    & 0.95     & 0.95     & 0.94     & 0.95      \\
+  \bottomrule
+\end{tabular}
+\caption{Coverage probability of 95\% confidence intervals for simulated bladder data. \label{tab:simulation}}
+\end{table}%\vskip18pt
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[!htb]
+\includegraphics[width=\maxwidth]{figure/simulation-1} \caption[Coverage probability of 95\% confidence intervals for simulated bladder data]{Coverage probability of 95\% confidence intervals for simulated bladder data. The coverage estimates based on the inversion method are colored blue.}\label{fig:simulation}
+\end{figure}
+
+
+\end{knitrout}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Conclusion}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+We have discussed a number of confidence interval procedures for statistical calibration in linear models with random coefficients with a single level of grouping.  We have described two \texttt{R} packages for implementing these procedures: \texttt{investr} and \texttt{lme4}.  The \texttt{investr} package can be used for obtaining the asymptotic confidence intervals (i.e., the Wald-based and inversion confidence intervals).  We also showed how the \texttt{lme4} package can be used to obtain calibration intervals based on a parametric bootstrap using the recently added \texttt{bootMer} function.  Future work will likely extend the methods discussed in this paper to more complicated cases such as nonlinear mixed-effects models and multi-level hierarchical models (i.e., more than one grouping variable).
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\bibliography{invest-lmm.bib}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\appendix
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section[Inverse estimation in R]{Inverse estimation in \texttt{R}}
+\label{sec:R}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Here, we discuss how to implement the previous procedures in the \texttt{R} programming languages.  We discuss two main packages: \texttt{investr} and \texttt{lme4}.  The \texttt{investr} package can be used for obtaining the Wald-based and inversion intervals.  This functionality is demonstrated over the next two sections.  The \texttt{lme4} package is a popular package for fitting linear, generalized linear, and nonlinear mixed models. Recently, however, the \texttt{lme4} package creators have added functionality for model-based parametric bootstrapping.  In Section~\ref{sec:lme4}, we demonstrate the potential of this new functionality by applying our parametric bootstrap algorithm to the bladder volume data discussed earlier.
 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection[The investr package]{The \texttt{investr} package}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-The \texttt{R} package \texttt{investr} facilitates calibration/inverse estimation with linear and nonlinear regression models.  The main function, \texttt{invest}, can be used for inverse estimation of $x_0$ given an observed response $y_0$.  More recently, the package has been updated to also handle objects of class \texttt{lme} from the \texttt{nlme} package.  Current functionality includes both the Wald-based and inversion methods outlined in Sections \ref{sec:wald}-\ref{sec:inversion}.  The important arguments for this function (as it applies to \texttt{"lme"} objects) are noted in Table~\ref{tab:invest} below.  The code for the package is hosted on GitHub at \url{https://github.com/bgreenwell/investr}, but the latest stable release can be found on CRAN at \url{https://CRAN.R-project.org/package=investr}.
+The \texttt{R} package \texttt{investr} facilitates calibration/inverse estimation with linear and nonlinear regression models.  The main function, \texttt{invest}, can be used for inverse estimation of $x_0$ given an observed response $y_0$.  More recently, the package has been updated to also handle objects of class \texttt{lme} from the \texttt{nlme} package.  Current functionality includes both the Wald-based and inversion methods outlined in Sections \ref{sec:wald}-\ref{sec:inversion}.  The code for the package is hosted on GitHub at \url{https://github.com/bgreenwell/investr}, but the latest stable release can be found on CRAN at \url{https://CRAN.R-project.org/package=investr}.
 
-\begin{table}[!htb]
-\begin{tabular}{lp{12cm}}
-  \toprule
-  Argument    & Description \\
-  \midrule
-  \texttt{object}        & An object that inherits from class \texttt{"lm"}, \texttt{"glm"}, \texttt{"nls"}, or \texttt{"lme"} \\
-  \texttt{y0}            & The value of the observed response(s) or specified value of the \\ & mean response. For \texttt{"glm"} objects, \texttt{y0} should be on scale of the \\ & response variable. \\
-  \texttt{interval}      & The type of interval required. Currently, only \texttt{"inversion"}, \\ & \texttt{"Wald"}, \texttt{"percentile"}, and \texttt{"none"} are supported. \\
-  \texttt{level}         & A numeric scalar between 0 and 1 giving the confidence level \\ & for the interval to be calculated. The default is \texttt{0.95}. \\
-  \texttt{lower}         & The lower endpoint of the interval to be searched. \\
-  \texttt{upper} 				 & The upper endpoint of the interval to be searched. \\
-  \texttt{q1}            & Optional lower cutoff to be used in forming \\ & confidence intervals. Only used when object inherits from class \\ & \texttt{"lme"}. Defaults to \texttt{stats::qnorm((1+level)/2)}. \\
-  \texttt{q2}            & Optional upper cutoff to be used in forming \\ & confidence intervals. Only used when object inherits from class \\ & \texttt{"lme"}. Defaults to \texttt{stats::qnorm((1-level)/2)}. \\
-  \bottomrule
-\end{tabular}
-\caption{Main arguments for the \texttt{invest} function. \label{tab:invest}}
-\end{table}
+% \begin{table}[!htb]
+% \begin{tabular}{lp{12cm}}
+%   \toprule
+%   Argument    & Description \\
+%   \midrule
+%   \texttt{object}        & An object that inherits from class \texttt{"lm"}, \texttt{"glm"}, \texttt{"nls"}, or \texttt{"lme"} \\
+%   \texttt{y0}            & The value of the observed response(s) or specified value of the \\ & mean response. For \texttt{"glm"} objects, \texttt{y0} should be on scale of the \\ & response variable. \\
+%   \texttt{interval}      & The type of interval required. Currently, only \texttt{"inversion"}, \\ & \texttt{"Wald"}, \texttt{"percentile"}, and \texttt{"none"} are supported. \\
+%   \texttt{level}         & A numeric scalar between 0 and 1 giving the confidence level \\ & for the interval to be calculated. The default is \texttt{0.95}. \\
+%   \texttt{lower}         & The lower endpoint of the interval to be searched. \\
+%   \texttt{upper} 				 & The upper endpoint of the interval to be searched. \\
+%   \texttt{q1}            & Optional lower cutoff to be used in forming \\ & confidence intervals. Only used when object inherits from class \\ & \texttt{"lme"}. Defaults to \texttt{stats::qnorm((1+level)/2)}. \\
+%   \texttt{q2}            & Optional upper cutoff to be used in forming \\ & confidence intervals. Only used when object inherits from class \\ & \texttt{"lme"}. Defaults to \texttt{stats::qnorm((1-level)/2)}. \\
+%   \bottomrule
+% \end{tabular}
+% \caption{Main arguments for the \texttt{invest} function. \label{tab:invest}}
+% \end{table}
 
 Returning to the bladder volume example, suppose we obtained an ultrasound measurement from a new patient for which $\texttt{HD}^{3/2} = 500$ (that's roughly 63 on the original scale).  What is the true volume of fluid ($x_0$) in the patients bladder?  We can estimate the true volume and form an approximate 95\% confidence interval using the methods discussed previously.  The point estimate is simply given by
 \[
@@ -497,44 +573,6 @@ Being able to specify the arguments \texttt{q1} and \texttt{q2} will also be use
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Monte Carlo Study}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-To assess the empirical performance of these confidence intervals, we carried out a small Monte Carlo study. The simulations described below were conducted in \texttt{R} using packages \texttt{plyr} \citep{wickham-plyr-2011}, \texttt{nlme}, and \texttt{lme4} \citep{bates-lme4-2014}.  The results are reported in Table~\ref{tab:simulation} and indicate that the Wald-based confidence interval \eqref{eqn:wald} and inversion confidence interval \eqref{eqn:inversion} have asymptotic coverage probability close to $100(1-\alpha)\%$.  This experiment also highlighted the fact that it is the number of subject $m$, not the sample size per subject $n$, that is more important for good asymptotic coverage.  The code used for the simulation is available upon request.
-
-We consider the values 5, 10, 30, 50, and 100 for both the number of subjects $m$ and and the number of observations per subject $n$.  For each combination of sample sizes, we generated 1,000 data sets from a random intercept and slope model with parameters given by those listed in \texttt{summary(transformed.lme)}.  In other words, the fixed-effects were $\bm{\beta} = \left(-53.83164, 69.09491\right)\trans$, the standard deviations for the (uncorrelated) random intercept and slope were 39.62499, and 14.28841, respectively.  The residual standard deviation was $\sigma = 53.71511$.  We chose $f\left(x_0; \bm{\beta}\right) = 500$ so that the true unknown is $x_0 = 8.0155$.  The standard deviation of the coverage estimates is approximately $\sqrt{0.95\left(1-0.95\right)/1000} = 0.001$.  A trellis plot of the results is given in Figure~\ref{fig:simulation}.  The coverage estimates are plotted against the number of subjects $m$ and paneled by number of observations per subject $n$.
-\begin{table}[!htb]
-\centering
-\begin{tabular}{llccccc}
-  \toprule
-  %\rule{0pt}{4ex}
-  $m$  & Method    & \hspace{8pt}$n = 5$\hspace{8pt} & \hspace{8pt}$n = 10$\hspace{8pt} & \hspace{8pt}$n = 30$\hspace{8pt} & \hspace{8pt}$n = 50$\hspace{8pt} & \hspace{8pt}$n = 100$ \hspace{8pt} \\
-  \hline
-  %\rule{0pt}{4ex}
-  5    & Wald      & 0.89    & 0.89     & 0.89     & 0.87     & 0.89      \\
-       & Inversion & 0.89    & 0.90     & 0.89     & 0.88     & 0.90      \\ \hline
-  10   & Wald      & 0.92    & 0.92     & 0.94     & 0.93     & 0.93      \\
-       & Inversion & 0.92    & 0.92     & 0.94     & 0.94     & 0.93      \\ \hline
-  30   & Wald      & 0.95    & 0.95     & 0.95     & 0.94     & 0.95      \\
-       & Inversion & 0.94    & 0.94     & 0.94     & 0.94     & 0.95      \\ \hline
-  50   & Wald      & 0.95    & 0.96     & 0.95     & 0.94     & 0.94      \\
-       & Inversion & 0.94    & 0.95     & 0.95     & 0.94     & 0.94      \\ \hline
-  100  & Wald      & 0.95    & 0.95     & 0.95     & 0.94     & 0.94      \\
-       & Inversion & 0.95    & 0.95     & 0.95     & 0.94     & 0.95      \\
-  \bottomrule
-\end{tabular}
-\caption{Coverage probability of 95\% confidence intervals for simulated bladder data. \label{tab:simulation}}
-\end{table}%\vskip18pt
-
-\begin{knitrout}
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): could not find function "{}xyplot"{}}}\end{kframe}
-\end{knitrout}
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection[Using the lme4 package]{Using the \texttt{lme4} package}
 \label{sec:lme4}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -554,16 +592,16 @@ Since we will be using the \texttt{lme4} package, we need to refit the model usi
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlkwd{library}\hlstd{(lme4)}
-\hlstd{transformed.lme4} \hlkwb{<-} \hlkwd{lmer}\hlstd{(HD} \hlopt{^} \hlstd{(}\hlnum{3} \hlopt{/} \hlnum{2}\hlstd{)} \hlopt{~} \hlstd{volume} \hlopt{+} \hlstd{(}\hlnum{0} \hlopt{+} \hlnum{1} \hlopt{|} \hlstd{subject)} \hlopt{+}
+\hlstd{transformed.lmer} \hlkwb{<-} \hlkwd{lmer}\hlstd{(HD} \hlopt{^} \hlstd{(}\hlnum{3} \hlopt{/} \hlnum{2}\hlstd{)} \hlopt{~} \hlstd{volume} \hlopt{+} \hlstd{(}\hlnum{0} \hlopt{+} \hlnum{1} \hlopt{|} \hlstd{subject)} \hlopt{+}
                            \hlstd{(}\hlnum{0} \hlopt{+} \hlstd{volume} \hlopt{|} \hlstd{subject),} \hlkwc{data} \hlstd{= bladder)}
 \end{alltt}
 \end{kframe}
 \end{knitrout}
-Theoretically, the parameter estimates from this model should be the same as those from \texttt{transformed.lme}; however, there are likely to be small numerical differences between the two.  For this reason, let us re-estimate $\widehat{x}_0$ using \texttt{transformed.lme4}.  Since \texttt{invest} does not work on objects of class \texttt{"lmer"}, we have to do things manually:
+Theoretically, the parameter estimates from this model should be the same as those from \texttt{transformed.lme}; however, there are likely to be small numerical differences between the two.  For this reason, let us re-estimate $\widehat{x}_0$ using \texttt{transformed.lmer}.  Since \texttt{invest} does not work on objects of class \texttt{"lmer"}, we have to do things manually:
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{fe} \hlkwb{<-} \hlkwd{unname}\hlstd{(}\hlkwd{fixef}\hlstd{(transformed.lme4))}  \hlcom{# fixed-effects}
+\hlstd{fe} \hlkwb{<-} \hlkwd{unname}\hlstd{(}\hlkwd{fixef}\hlstd{(transformed.lmer))}  \hlcom{# fixed-effects}
 \hlstd{(x0.est} \hlkwb{<-} \hlstd{(}\hlnum{500} \hlopt{-} \hlstd{fe[}\hlnum{1}\hlstd{])} \hlopt{/} \hlstd{fe[}\hlnum{2}\hlstd{])}
 \end{alltt}
 \begin{verbatim}
@@ -582,7 +620,7 @@ Also, for convenience, we define the following function which estimates $\VAR\le
 \end{alltt}
 \end{kframe}
 \end{knitrout}
-For example, to estimate $\sigma_0^2 = \widehat{\VAR}\left[\mathcal{Y}_0\right]$, we have \texttt{varY(transformed.lme4, x = x0.est)}, which gives \ensuremath{1.757\times 10^{4}}, the same value used in the previous section.
+For example, to estimate $\sigma_0^2 = \widehat{\VAR}\left[\mathcal{Y}_0\right]$, we have \texttt{varY(transformed.lmer, x = x0.est)}, which gives \ensuremath{1.757\times 10^{4}}, the same value used in the previous section.
 
 Although we could easily compute all the bootstrap intervals previously discussed in one call to \texttt{bootMer} and \texttt{boot.ci}, we will discuss and compute each interval separately.
 
@@ -590,7 +628,7 @@ The following snippet of code generates $R = 9999$ bootstrap replicates of $\wid
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{pboot} \hlkwb{<-} \hlkwd{bootMer}\hlstd{(transformed.lme4,} \hlkwc{nsim} \hlstd{=} \hlnum{9}\hlstd{,} \hlkwc{seed} \hlstd{=} \hlnum{105}\hlstd{,} \hlkwc{FUN} \hlstd{=} \hlkwa{function}\hlstd{(}\hlkwc{.}\hlstd{) \{}
+\hlstd{pboot} \hlkwb{<-} \hlkwd{bootMer}\hlstd{(transformed.lmer,} \hlkwc{nsim} \hlstd{=} \hlnum{9}\hlstd{,} \hlkwc{seed} \hlstd{=} \hlnum{105}\hlstd{,} \hlkwc{FUN} \hlstd{=} \hlkwa{function}\hlstd{(}\hlkwc{.}\hlstd{) \{}
 
   \hlcom{# Point estimate}
   \hlstd{var.Y0.boot} \hlkwb{<-} \hlkwd{varY}\hlstd{(.,} \hlkwc{x} \hlstd{= x0.est)}  \hlcom{# VAR[Y0]}
@@ -688,39 +726,5 @@ The bootstrap adjusted inversion interval can be computed as easily as the ordin
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
-
-All of the approximate 95\% confidence intervals we computed for the true volume of fluid are summarized in Table~\ref{tab:summary} below.
-
-
-
-\begin{table}[!htb]
-\centering
-\begin{tabular}{lcccc}
-  \toprule
-  Method                      &  Estimate & SE & 95\% Bounds & Length \\
-  \midrule
-  $CI_{wald}\left(x_0\right)$                 & 8.016 & 1.954 & (4.185, 11.846) & 7.66 \\
-  $CI_{inv}\left(x_0\right)$            & 8.016 &  ---            & (4.228, 11.919) & 7.691 \\
-  $CI_{percentile}\boot\left(x_0\right)$     & 8.016 & 1.974 & (4.05, 11.913) & 7.863 \\
-  $CI_{wald}\boot\left(x_0\right)$           & 8.016 & 1.974 & (4.252, 11.947) & 7.695 \\
-  $CI_{inv}\boot\left(x_0\right)$      & 8.016 & 1.974 & (4.278, 12.019) & 7.741 \\
-%   Bayesian (uniform prior)    & 8.445     & 1.825 & (4.629, 11.921) & 7.292 \\
-  \bottomrule
-\end{tabular}
-\caption{Summary of results for the bladder volume example.  A $\star$ symbol indicates a parametric bootstrap-based confidence interval. \label{tab:summary}}
-\end{table}
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Conclusion}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-We have discussed a number of confidence interval procedures for statistical calibration in linear models with random coefficients with a single level of grouping.  We have described two \texttt{R} packages for implementing these procedures: \texttt{investr} and \texttt{lme4}.  The \texttt{investr} package can be used for obtaining the asymptotic confidence intervals (i.e., the Wald-based and inversion confidence intervals).  We also showed how the \texttt{lme4} package can be used to obtain calibration intervals based on a parametric bootstrap using the recently added \texttt{bootMer} function.  Future work will likely extend the methods discussed in this paper to more complicated cases such as nonlinear mixed-effects models and multi-level hierarchical models (i.e., more than one grouping variable).
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\bibliography{invest-lmm.bib}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 
 \end{document}
