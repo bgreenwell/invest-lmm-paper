@@ -1,0 +1,277 @@
+%% Supplementary material
+\documentclass{article}
+
+%% Load required packages
+\usepackage{amsmath,amsfonts,bm}
+\usepackage[round]{natbib}
+\usepackage{hyperref}
+
+%% Macros
+\newcommand{\trans}{\ensuremath{^\prime}}
+\newcommand{\boot}{\star} % or possiibly *
+%\newcommand{\code}[1]{\texttt{\small{#1}}}
+%\newcommand{\pkg}[1]{\textsf{\small{#1}}}
+\newcommand{\proglang}[1]{\textsf{#1}}
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\pkg}[1]{\textsf{#1}}\newcommand{\var}{\ensuremath{\mathbb{V}}}
+\newcommand{\se}{\ensuremath{\mathrm{se}}}
+\newcommand{\E}{\ensuremath{\mathbb{E}}}
+\newcommand{\X}{\ensuremath{\bm{X}}}
+\newcommand{\Z}{\ensuremath{\bm{Z}}}
+\newcommand{\newln}{\\&\quad\quad\quad\quad{}}
+\newtheorem{rexample}{R Example}%[section]
+
+%% Title
+\title{Web-based Supplementary Materials for "Linear Calibration with Grouped Data" by Brandon M. Greenwell and Christine M. Schubert}
+\date{}
+\author{}
+
+\begin{document}
+
+\maketitle
+
+<<setup, include=FALSE>>=
+options(width = 50)
+knit_hooks$set(rexample = function(before, options, envir) {
+  if (before) 
+    sprintf('\\begin{rexample}\\label{%s}\\hfill{}', options$label) 
+  else 
+    '\\end{rexample}'
+})
+@
+
+\section*{Web Appendix A}
+\subsection*{The ML Estimator of $x_0$ for the Random Intercept Model}
+
+%Put your short appendix here.  Remember, longer appendices are
+%possible when presented as Supplementary Web Material.  Please 
+%review and follow the journal policy for this material, available
+%under Instructions for Authors at \texttt{http://www.biometrics.tibs.org}.
+
+In this appendix, we show that the inverse estimator, $\widehat{x}_0 = \mu^{-1}\left(\mathcal{Y}_0; \widehat{\bm{\beta}}\right)$, is the ML estimator of $x_0$ for the random intercept model. For this model, note that the scaled variance-covariance matrix of the random effect becomes $\bm{G}^\dagger = \tau\bm{I}$ and that $\Z_i = \bm{1}_i$ (a column vector of all ones), hence, $\bm{V}_i = \sigma_\epsilon^2\left(\bm{I}_i + \tau\bm{J}_i\right)$ where $\bm{J}_i = \bm{1}_i\bm{1}_i\trans$. Therefore, we can write
+\[
+  \bm{\mathcal{Y}}_i \sim \mathcal{N}\left\{\X_i\bm{\beta}, \sigma_\epsilon^2\left(\bm{I}_i + \tau\bm{J}_i\right)\right\}, \quad i = 1, \dotsc, m,
+\]
+where $\X_i$ is an $n_i \times 2$ design matrix with $j$-th row equal to $\X_{ij}\trans = \left(1, x_{ij}\right)$, $\bm{\beta} = \left(\beta_0, \beta_1\right)\trans$ is a vector of fixed effects, $\sigma_\epsilon^2$ is the within-subject variance, and $\sigma_\epsilon^2\tau$ is the variance of the random intercepts. Ignoring constants, the log-likelihood for the data is
+\begin{multline*}
+  \ell_{\mathrm{I}}\left(\bm{\beta}, \sigma_\epsilon^2, \tau\right) = -\frac{N}{2}\log\left(\sigma_\epsilon^2\right) - \frac{1}{2}\sum_{i = 1}^m \log\left|\bm{I} + \tau\bm{J}_i\right| \\ - \frac{1}{2\sigma_\epsilon^2}\sum_{i = 1}^m \left(\bm{\mathcal{Y}}_i - \X_i\bm{\beta}\right)\trans\left(\bm{I} + \tau\bm{J}_i\right)^{-1}\left(\bm{\mathcal{Y}}_i - \X_i\bm{\beta}\right).
+\end{multline*}
+The subscript "$\mathrm{I}$" is there to remind us that this is the likelihood for the data from the first stage of the calibration experiment. Using the following formulas \citep[pg. 49]{demidenko_mixed_2013},
+\begin{itemize}
+  \item $\left|\bm{I} + \tau\bm{J}_i\right| = 1 + n_i\tau$;
+  \item $\left(\bm{I} + \tau\bm{J}_i\right)^{-1} = \bm{I} - \frac{\tau}{1 + n_i\tau}\bm{J}_i$;
+\end{itemize}
+the log-likelihood simplifies to
+\begin{multline*}
+  \ell_{\mathrm{I}}\left(\bm{\beta}, \sigma_\epsilon^2, \tau\right) = -\frac{N}{2}\log\left(\sigma_\epsilon^2\right) - \frac{1}{2}\sum_{i = 1}^m \log\left(1 + n_i\tau\right) \\ - \frac{1}{2\sigma_\epsilon^2}\sum_{i = 1}^m \left(\bm{\mathcal{Y}}_i - \X_i\bm{\beta}\right)\trans\left(\bm{I} - \frac{\tau}{1 + n_i\tau}\bm{J}_i\right)\left(\bm{\mathcal{Y}}_i - \X_i\bm{\beta}\right).
+\end{multline*}
+Similarly, the log-likelihood for $\mathcal{Y}_0$ (i.e., the data from the second stage of the calibration experiment) is 
+\[
+  \mathcal{\ell}_{\mathrm{II}}\left(\bm{\beta}, \sigma_\epsilon^2, \tau, x_0\right) = -\frac{1}{2}\log\left(\sigma_\epsilon^2\right) - \frac{1}{2}\log\left(1 + \tau\right) - \frac{1}{2\sigma_\epsilon^2\left(1 + \tau\right)}\left(\mathcal{Y}_0 - \beta_0 - \beta_1 x_0\right)^2.
+\]
+From the independence of $\bm{\mathcal{Y}}$ and $\mathcal{Y}_0$, the log-likelihood for the pooled data, denoted $\mathcal{\ell}\left(\bm{\beta}, \sigma_\epsilon^2, \tau, x_0\right)$, is given by
+\begin{align*}
+  \ell\left(\bm{\beta}, \sigma_\epsilon^2, \tau, x_0\right) &= \mathcal{\ell}_{\mathrm{I}}\left(\bm{\beta}, \sigma_\epsilon^2, \tau\right) + \mathcal{\ell}_{\mathrm{II}}\left(\bm{\beta}, \sigma_\epsilon^2, \tau, x_0\right) \\
+  &= -\frac{N+1}{2}\log\left(\sigma_\epsilon^2\right) - \frac{1}{2}\sum_{i = 1}^m \log\left(1 + n_i\tau\right) - \frac{1}{2}\log\left(1 + \tau\right) \newln - \frac{1}{2\sigma_\epsilon^2}\sum_{i = 1}^m \left(\bm{\mathcal{Y}}_i - \X_i\bm{\beta}\right)\trans\left(\bm{I} - \frac{\tau}{1 + n_i\tau}\bm{J}_i\right)\left(\bm{\mathcal{Y}}_i - \X_i\bm{\beta}\right) \newln - \frac{1}{2\sigma_\epsilon^2\left(1 + \tau\right)}\left(\mathcal{Y}_0 - \beta_0 - \beta_1 x_0\right)^2.
+\end{align*}
+Thus, the full log-likelihood is the sum of two parts, the log-likelihood for the standards, and the log-likelihood for the unknown. Equating to zero the partial derivative of the full log-likelihood with respect to the parameter $x_0$ results in $\widetilde{x}_0\left(\bm{\beta}\right) = \left(\mathcal{Y}_0 - \beta_0\right)/\beta_1$. In other words, for any value of $\bm{\beta}$, $\widetilde{x}_0\left(\bm{\beta}\right)$ maximizes the likelihood with respect to $x_0$. Substituting this into the log-likelihood yields the \textit{profiled log-likelihood}
+\begin{multline*}
+  \mathcal{\ell}_p\left(\bm{\beta}, \sigma_\epsilon^2, \tau\right) = -\frac{N+1}{2}\log\left(\sigma_\epsilon^2\right) - \frac{1}{2}\sum_{i = 1}^m \log\left(1 + n_i\tau\right) - \frac{1}{2}\log\left(1 + \tau\right) \\ - \frac{1}{2\sigma_\epsilon^2}\sum_{i = 1}^m \left(\bm{\mathcal{Y}}_i - \X_i\bm{\beta}\right)\trans\left(\bm{I} - \frac{\tau}{1 + n_i\tau}\bm{J}_i\right)\left(\bm{\mathcal{Y}}_i - \X_i\bm{\beta}\right),
+\end{multline*}
+Similarly, equating the partial derivative of $\mathcal{\ell}_p\left(\bm{\beta}, \sigma_\epsilon^2, \tau\right)$, with respect to the parameter $\sigma_\epsilon^2$, to zero yields 
+\[
+  \widetilde{\sigma}_\epsilon^2\left(\bm{\beta}, \tau\right) = \frac{1}{N + 1}\sum_{i = 1}^m \left(\bm{\mathcal{Y}}_i - \X_i\bm{\beta}\right)\left(\bm{I} - \frac{\tau}{1 + n_i\tau}\bm{J}_i\right)\left(\bm{\mathcal{Y}}_i - \X_i\bm{\beta}\right)\trans.
+\]
+Substituting this into the profiled log-likelihood and simplifying we get
+\begin{multline*}
+  \mathcal{\ell}_p\left(\bm{\beta}, \tau\right) = -\frac{N+1}{2}\log\left\{\sum_{i = 1}^m \left(\bm{\mathcal{Y}}_i - \X_i\bm{\beta}\right)\trans\left(\bm{I} - \frac{\tau}{1 + n_i\tau}\bm{J}_i\right)\left(\bm{\mathcal{Y}}_i - \X_i\bm{\beta}\right)\right\} \\ - \frac{1}{2}\sum_{i = 1}^m \log\left(1 + n_i\tau\right) - \frac{1}{2}\log\left(1 + \tau\right),
+\end{multline*}
+The parameters $x_0$ and $\sigma_\epsilon^2$ have been "profiled out", resulting in a simpler log-likelihood in only $p + 1$ parameters. We could continue in this fashion with the parameter $\bm{\beta}$ as well, although, it is quite easy to see that the value of $\bm{\beta}$ that maximizes $\mathcal{\ell}_p\left(\bm{\beta}, \tau\right)$ is just the usual generalized least squares estimator, $\widetilde{\bm{\beta}}\left(\tau\right)$. Furthermore, it can be shown \citep{demidenko_mixed_2013} that, for the balanced case, $\widetilde{\bm{\beta}}\left(\tau\right) = \widetilde{\bm{\beta}}$ does not depend on $\tau$ and in fact reduces to the ordinary least squares estimator $\widehat{\bm{\beta}} = \left(\X\trans\X\right)^{-1}\X\trans\bm{\mathcal{Y}}$. Thus, the ML estimator of $x_0$ for the balanced random intercept model is simply
+\[
+  \widehat{x}_0 = \widetilde{x}_0\left(\widehat{\bm{\beta}}\right) = \frac{\mathcal{Y}_0 - \widehat{\beta}_0}{\widehat{\beta}_1},
+\]
+where 
+\[
+  \widehat{\beta}_1 = \frac{\sum_{i=1}^n\sum_{j=1}^m\left(x_{ij}-\bar{x}\right)\left(y_{ij}-\bar{y}\right)}{\sum_{i=1}^n\sum_{j=1}^m\left(x_{ij}-\bar{x}\right)^2}, \quad \widehat{\beta}_0 = \bar{y} - \widehat{\beta}_1\bar{x}.
+\]
+
+\section*{Web Appendix B}
+\subsection*{Example \proglang{R} code}
+
+The following snippets of \proglang{R} code are provided as a template for implementing the various methods outlined in our paper. The first example loads the necessary packages and data, and fits the LMM discussed in the paper.
+<<example-1, echo=TRUE, cache=TRUE, rexample=TRUE>>=
+
+## Load packages 
+library(car)  # for deltaMethod() function
+library(nlme) # for fitting LMMs
+library(lme4) # for fitting LMMs and parametric bootstrap
+library(boot) # for calculating bootstrap CI's
+
+
+## Bladder data 
+subject <- rep(1:23, times = 8)
+volume <- rep(c(10, 25, 50, 75, 100, 125, 150, 175), each = 23)
+HD <- c(13.2, 11.1, 10.3, NA, 4.8, 7.7, NA, 5.9, 1.9, 6.5, 19.8, 
+  14.6, NA, NA, 9.7, 17.2, 10.6, 19.3, 8.5, 6.9, 8.1, 14.8, 13.7, 
+  27.4, 27.5, 15, 10, 18.6, 12.6, 24, 28.4, 12.5, 16.7, 29.6, 
+  27.1, 14, 18.7, 20.3, 35.8, 23.6, 37.4, 31.3, 23.7, 22, 34.3, 
+  28.5, 41.6, 58.1, 34.2, 28.8, 29.9, 31.4, 46.9, 44.4, 26.8, 
+  30.6, 51.7, 49.8, 19.1, 35.8, 38.9, 41.4, 49.9, 58.6, 54.8, 44, 
+  39.1, 58.5, 41.5, 60.1, 78.8, 49.4, 46.4, 39.4, 45.3, 50.4, 
+  70.7, 54.4, 41.8, 72.2, 67.5, 39.2, 49.6, 65.1, 69.7, 67.7, 
+  73.7, 78.3, 65.7, 44.7, 72.1, 59.8, 73.9, 91.5, 71.3, 54.8, NA, 
+  48, 67.8, 89.4, 63.1, 49.6, 81.9, 79.1, 48.7, 65.6, 65.1, 81.9,
+  87.7, 79.4, 93, 80.3, 68.9, 90.9, 77.5, 85.5, 98.3, 81.3, 69.4, 
+  NA, 66.6, 81, 105.8, 83.5, 60.8, 95.1, 95.1, 67, 85.3, 86.9, 
+  96.6, 89.3, 102.6, NA, 93.6, 93.3, 105, 92.9, 95.6, 111.4, 94, 
+  73.9, NA, NA, 91.2, 113.5, 114.5, 80.1, 115.4, 109.8, 72.7, 
+  90.4, 98.6, 115, 108, 110.9, NA, 99.2, 102.4, 117.5, 99.4, 
+  107.4, 121, 104.3, NA, NA, NA, 99.8, 127.3, 124, 87.1, NA, NA, 
+  NA, NA, 107.2, 117, 114.8, 122.4, NA, 112.2, 104.7, 124.2, 113)
+bladder <- data.frame(subject = subject, HD = HD, volume = volume)
+bladder <- na.omit(bladder)
+
+## Fit model
+bladder.nlme <- lme(HD ~ volume + I(volume^2), data = bladder,
+                    random = list(subject = pdDiag(~volume))) 
+          
+@
+
+To obtain the inverse estimate, we find it useful to write a simple function. If the solution can not easily be written in closed-form, then the user can easily amend the following example to call the built-in \proglang{R} function \code{uniroot} to solve the equation 
+\[
+  \mu\left(x_0; \widehat{\bm{\beta}}\right) - y_0 = 0
+\]
+for $x_0$ numerically.
+<<example-2, echo=TRUE, cache=TRUE, rexample=TRUE>>=
+
+xest <- function(object, y0) {
+  b <- unname(fixef(object))
+  (-b[2] + sqrt(b[2]^2 - 4*b[3]*(b[1]-y0))) / (2*b[3])
+}
+(x0.est <- xest(bladder.nlme, y0 = 85))
+
+@
+
+Obtaining the Wald-based interval is straightforward using the \pkg{car} package \citep{fox_car_2011}, as illustrated in the following snippet of code.
+<<example-3, echo=TRUE, cache=TRUE, rexample=TRUE>>=
+
+b <- unname(fixef(bladder.nlme))
+var.y0 <- getVarCov(bladder.nlme)[1, 1] +
+  x0.est^2*getVarCov(bladder.nlme)[2, 2] + 
+  summary(bladder.nlme)$sigma^2
+covmat <- diag(4)
+covmat[1:3, 1:3] <- vcov(bladder.nlme) 
+covmat[4, 4] <- var.y0
+params <- c(b0 = b[1], b1 = b[2], b2 = b[3], Y0 = 85)
+g <- "(-b1 + sqrt(b1^2 - 4*b2*(b0-Y0))) / (2*b2)"
+dm <- deltaMethod(params, g = g, vcov. = covmat)
+
+## Approximate standard error
+dm$SE
+
+## The Wald-based interval
+(wald.ci <- x0.est + qnorm(c(0.025, 0.975))*dm$SE)
+
+@
+
+As discussed in our paper, the inversion interval is a little trickier since we need to write a new prediction function that returns an approximate standard error for the fitted values. We then invert an approximate prediction interval to obtain a confidence interval for $x_0$ as in the following snippet of code. As discussed in our paper, this interval may not exist, in which case the following code will produce in error. In our simulations, we augmented the \code{uniroot} function to return $\pm \infty$ in such cases.
+<<example-4, echo=TRUE, cache=TRUE, rexample=TRUE>>=
+
+predFun <- function(x) {
+  z <- list(volume = x)
+  fit <- predict(bladder.nlme, newdata = z, level = 0)
+  se.fit <- sqrt(diag(cbind(1, unlist(z), unlist(z)^2) %*%
+                        bladder.nlme$varFix %*%
+                        t(cbind(1, unlist(z), unlist(z)^2))))
+  list(fit = fit, se.fit = se.fit)
+}
+bounds <- function(x, w) {
+  z <- list(volume = x)
+  pred <- predFun(x)
+  (85 - pred$fit)/sqrt(var.y0 + pred$se.fit^2) - w
+}
+lower <- uniroot(bounds, interval = c(min(bladder$volume), x0.est),
+                 w = qnorm(0.975), tol = 1e-10, maxiter = 1000)$root
+upper <- uniroot(bounds, interval = c(x0.est, 250),
+                 w = qnorm(0.025), tol = 1e-10, maxiter = 1000)$root
+
+## The inversion interval
+(inversion.ci <- c(lower, upper))
+
+@
+
+The last example shows how to use the new \code{bootMer} function from the well-known \pkg{lme4} \citep{bates_lme4_2014} package to implement the parametric bootstrap algorithm for calibration outlined in our paper. To obtain this confidence interval, we need to refit the model using the \code{lmer} function in \pkg{lme4}, this may produce a warning message for these data, but the model is well-defined and matches the output obtained from fitting the model using the base package \pkg{nlme} \citep{pinheiro_nlme_2013}.
+<<example-5, echo=TRUE, cache=TRUE, rexample=TRUE>>=
+
+## Refit model using lme4 package (may get a warning message)
+bladder.lme4 <- lmer(HD ~ volume + I(volume^2) + (0+1|subject) +
+  (0+volume|subject), data = bladder)
+
+## Calculate variance of Y0
+var.y0 <- VarCorr(bladder.lme4)[[1]][1] + 
+  x0.est^2*VarCorr(bladder.lme4)[[2]][1] + sigma(bladder.lme4)^2
+
+## Bootstrap function
+bootFun <- function(.) {
+  
+  ## Bootstrap inverse estimate
+  if (all(getME(., "y") == bladder$HD)) {
+    y0.boot <- 85 
+  } else {
+    y0.boot <- 85 + rnorm(1, mean = 0, sd = sqrt(var.y0))
+  }
+  x0.boot <- xest(., y0 = y0.boot)
+  
+  ## Bootstrap predictive pivot
+  mu0.boot <-  as.numeric(crossprod(fixef(.), 
+    c(1, x0.est, x0.est^2))) 
+  var.y0.boot <- VarCorr(.)[[1]][1] + 
+    x0.est^2*VarCorr(.)[[2]][1] + sigma(.)^2
+  var.mu0.boot <- t(c(1, x0.est, x0.est^2)) %*% 
+    as.matrix(vcov(.)) %*% c(1, x0.est, x0.est^2)
+  Q.boot <- (y0.boot - mu0.boot)/sqrt(var.y0.boot + var.mu0.boot)
+  
+  ## Return bootstrap estimates
+  c(x0.boot, Q.boot)
+  
+}
+
+## Run bootstrap simulation (will take a few minutes!)
+set.seed(101)
+bladder.pb <- bootMer(bladder.lme4, FUN = bootFun, nsim = 9999,
+                      parallel = "multicore", ncpus = 4)
+
+## Get bootstrap Wald and percentile intervals for x0
+boot.ci(bladder.pb, index = 1, type = c("norm", "perc"))
+
+## Bootstrap adjusted inversion interval
+qstar <- quantile(bladder.pb$t[, 2], c(0.025, 0.975))
+lower <- uniroot(bounds, interval = c(min(bladder$volume), x0.est), 
+                 w = qstar[2], tol = 1e-10, maxiter = 1000)$root
+upper <- uniroot(bounds, interval = c(x0.est, 250), 
+                 w = qstar[1], tol = 1e-10, maxiter = 1000)$root
+(inversion2.ci <- c(lower, upper))
+
+@
+
+<<hist1, echo=FALSE, fig.width=7, fig.height=7, fig.align='center', fig.cap='Histograms and normal Q-Q plots for the 9,999 bootstrap replicates of $\\widehat{x}_0$ and $\\mathcal{Q}$. \\textit{Bottom}: Inverse estimator, $\\widehat{x}_0$. \\textit{Bottom}: Predictive pivot, $\\mathcal{Q}$.'>>=
+
+library(RColorBrewer)
+cols <- brewer.pal(8, "Dark2")
+par(mfrow = c(2, 2))
+hist(bladder.pb$t[, 1], freq = FALSE, breaks = 50, xlab = "", main = "",
+     col = cols[1], border = "white")
+qqnorm(bladder.pb$t[, 1], col = cols[1], main = "")
+qqline(bladder.pb$t[, 1])
+hist(bladder.pb$t[, 2], freq = FALSE, breaks = 50, xlab = "", main = "",
+     col = cols[2], border = "white")
+curve(dnorm(x), lwd = 2, add = TRUE)
+qqnorm(bladder.pb$t[, 2], col = cols[2], main = "")
+qqline(bladder.pb$t[, 2])
+
+@
+
+%% Bibliography
+\bibliographystyle{biom} \bibliography{supplementary}
+
+\end{document}

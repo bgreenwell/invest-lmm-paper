@@ -1,0 +1,152 @@
+\begin{thebibliography}{25}
+\newcommand{\enquote}[1]{``#1''}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\providecommand{\urlprefix}{URL }
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi:\discretionary{}{}{}#1}\else
+  \providecommand{\doi}{doi:\discretionary{}{}{}\begingroup
+  \urlstyle{rm}\Url}\fi
+\providecommand{\eprint}[2][]{\url{#2}}
+
+\bibitem[{Bates \emph{et~al.}(2014)Bates, Maechler, Bolker, and
+  Walker}]{bates-lme4-2014}
+Bates D, Maechler M, Bolker B, Walker S (2014).
+\newblock \emph{lme4: Linear mixed-effects models using Eigen and S4}.
+\newblock R package version 1.1-6,
+  \urlprefix\url{http://CRAN.R-project.org/package=lme4}.
+
+\bibitem[{Boos and Stefanski(2013)}]{boos-essential-2013}
+Boos D, Stefanski L (2013).
+\newblock \emph{Essential Statistical Inference: Theory and Methods}.
+\newblock Springer Texts in Statistics. Springer London, Limited.
+
+\bibitem[{Brown(1993)}]{brown-measurement-1993}
+Brown P (1993).
+\newblock \emph{Measurement, Regression, and Calibration}.
+\newblock Oxford science publications. Clarendon Press.
+
+\bibitem[{Canty and Ripley(2013)}]{canty-boot-2013}
+Canty A, Ripley B (2013).
+\newblock \emph{boot: Bootstrap R (S-Plus) Functions}.
+\newblock R package version 1.3-9,
+  \urlprefix\url{http://cran.r-project.org/web/packages/boot/index.html}.
+
+\bibitem[{Casella and Berger(2002)}]{casella-statistical-2002}
+Casella G, Berger R (2002).
+\newblock \emph{Statistical inference}.
+\newblock Duxbury advanced series in statistics and decision sciences. Thomson
+  Learning.
+
+\bibitem[{Davison and Hinkley(1997)}]{hinkley-bootstrap-1997}
+Davison AC, Hinkley DV (1997).
+\newblock \emph{Bootstrap Methods and their Applications}.
+\newblock Cambridge Series in Statistical and Probabilistic Mathematics.
+  Cambridge University Press, Cambridge.
+
+\bibitem[{Demidenko(2013)}]{demidenko_mixed_2013}
+Demidenko E (2013).
+\newblock \emph{Mixed Models: Theory and Applications with R}.
+\newblock Wiley.
+
+\bibitem[{Efron(1979)}]{efron-bootstrap-1979}
+Efron B (1979).
+\newblock \enquote{Bootstrap Methods: Another Look at the Jackknife.}
+\newblock \emph{The Annals of Statistics}, \textbf{7}(1), 1--26.
+
+\bibitem[{Efron(1982)}]{efron-jackknife-1982}
+Efron B (1982).
+\newblock \emph{The Jackknife, the Bootstrap, and Other Resampling Plans}.
+\newblock Society for Industrial and Applied Mathematics.
+
+\bibitem[{Efron(1987)}]{efron-better-1987}
+Efron B (1987).
+\newblock \enquote{Better Bootstrap Confidence Intervals.}
+\newblock \emph{Journal of the American Statistical Association},
+  \textbf{82}(397), 171--185.
+
+\bibitem[{Fox and Weisberg(2011)}]{fox-car-2011}
+Fox J, Weisberg S (2011).
+\newblock \emph{An {R} Companion to Applied Regression}.
+\newblock Second edition. Sage, Thousand Oaks {CA}.
+\newblock
+  \urlprefix\url{http://socserv.socsci.mcmaster.ca/jfox/Books/Companion}.
+
+\bibitem[{Graybill(1976)}]{graybill-theory-1976}
+Graybill FA (1976).
+\newblock \emph{Theory and Application of the Linear Model}.
+\newblock Duxbury classic series. Duxbury, Pacific Grove, CA.
+
+\bibitem[{Greenwell(2013)}]{investr-package}
+Greenwell BM (2013).
+\newblock \emph{investr: Functions for Inverse Estimation with Linear and
+  Nonlinear Regression Models in R.}
+\newblock R package version 1.1.0,
+  \urlprefix\url{http://CRAN.R-project.org/package=investr}.
+
+\bibitem[{Greenwell and Kabban(2014)}]{greenwell-investr-2014}
+Greenwell BM, Kabban CMS (2014).
+\newblock \enquote{investr: An R Package for Inverse Estimation.}
+\newblock \emph{The R Journal}, \textbf{6}(1), ??--??
+
+\bibitem[{Hall(1986)}]{hall-bootstrap-1986}
+Hall P (1986).
+\newblock \enquote{On the Bootstrap and Confidence Intervals.}
+\newblock \emph{The Annals of Statistics}, \textbf{14}(4), 1431--1452.
+
+\bibitem[{Huet(2004)}]{huet-statistical-2004}
+Huet S (2004).
+\newblock \emph{Statistical Tools for Nonlinear Regression: A Practical Guide
+  with S-PLUS and R Examples}.
+\newblock Springer Series in Statistics. Springer.
+
+\bibitem[{Jones and Rocke(1999)}]{jones-bootstrapping-1999}
+Jones G, Rocke DM (1999).
+\newblock \enquote{Bootstrapping in Controlled Calibration Experiments.}
+\newblock \emph{Technometrics}, \textbf{41}(3), 224--233.
+
+\bibitem[{Laird and Ware(1982)}]{laird-random-1982}
+Laird NM, Ware JH (1982).
+\newblock \enquote{Random-Effects Models for Longitudinal Data.}
+\newblock \emph{Biometrics}, \textbf{38}(4), 963--974.
+
+\bibitem[{McCulloch \emph{et~al.}(2008)McCulloch, Searle, and
+  Neuhaus}]{mcculloch_generalized_2008}
+McCulloch CE, Searle SR, Neuhaus JM (2008).
+\newblock \emph{Generalized, Linear, and Mixed Models}.
+\newblock Wiley.
+
+\bibitem[{Oman(1998)}]{oman-calibration-1998}
+Oman SD (1998).
+\newblock \enquote{Calibration with Random Slopes.}
+\newblock \emph{Biometrika}, \textbf{85}(2), 439--449.
+
+\bibitem[{Osborne(1991)}]{osborne-statistical-1991}
+Osborne C (1991).
+\newblock \enquote{Calibration: A Review.}
+\newblock \emph{International Statistical Review}, \textbf{59}(3), 309--336.
+
+\bibitem[{Pinheiro and Bates(2000)}]{pinheiro-mixed-2000}
+Pinheiro J, Bates D (2000).
+\newblock \emph{Mixed-Effects Models in S and S-PLUS}.
+\newblock Statistics and Computing. Springer.
+
+\bibitem[{Pinheiro \emph{et~al.}(2013)Pinheiro, Bates, DebRoy, Sarkar, and {R
+  Core Team}}]{pinheiro-nlme-2013}
+Pinheiro J, Bates D, DebRoy S, Sarkar D, {R Core Team} (2013).
+\newblock \emph{nlme: Linear and Nonlinear Mixed Effects Models}.
+\newblock R package version 3.1-110.
+
+\bibitem[{Seber and Wild(2003)}]{seber-nonlinear-2003}
+Seber G, Wild C (2003).
+\newblock \emph{Nonlinear Regression}.
+\newblock Wiley Series in Probability and Statistics. Wiley.
+
+\bibitem[{Wickham(2011)}]{wickham-plyr-2011}
+Wickham H (2011).
+\newblock \enquote{The Split-Apply-Combine Strategy for Data Analysis.}
+\newblock \emph{Journal of Statistical Software}, \textbf{40}(1), 1--29.
+\newblock R package version 1.8.1,
+  \urlprefix\url{http://www.jstatsoft.org/v40/i01/}.
+
+\end{thebibliography}

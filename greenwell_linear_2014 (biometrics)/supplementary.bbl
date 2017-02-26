@@ -1,0 +1,27 @@
+\begin{thebibliography}{}
+
+\bibitem[\protect\citeauthoryear{Bates, Maechler, Bolker, and Walker}{Bates
+  et~al.}{2014}]{bates_lme4_2014}
+Bates, D., Maechler, M., Bolker, B., and Walker, S. (2014).
+\newblock {\em lme4: Linear mixed-effects models using Eigen and S4}.
+\newblock R package version 1.1-5.
+
+\bibitem[\protect\citeauthoryear{Demidenko}{Demidenko}{2013}]{demidenko_mixed_2013}
+Demidenko, E. (2013).
+\newblock {\em Mixed Models: Theory and Applications with R}.
+\newblock Wiley.
+
+\bibitem[\protect\citeauthoryear{Fox and Weisberg}{Fox and
+  Weisberg}{2011}]{fox_car_2011}
+Fox, J. and Weisberg, S. (2011).
+\newblock {\em An {R} Companion to Applied Regression}.
+\newblock Sage, Thousand Oaks {CA}, second edition.
+\newblock R package version 2.0-19.
+
+\bibitem[\protect\citeauthoryear{Pinheiro, Bates, DebRoy, Sarkar, and {R Core
+  Team}}{Pinheiro et~al.}{2013}]{pinheiro_nlme_2013}
+Pinheiro, J., Bates, D., DebRoy, S., Sarkar, D., and {R Core Team} (2013).
+\newblock {\em nlme: Linear and Nonlinear Mixed Effects Models}.
+\newblock R package version 3.1-110.
+
+\end{thebibliography}
