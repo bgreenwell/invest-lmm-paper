@@ -56,7 +56,7 @@ bladder <- na.omit(data.frame(subject = subject, HD = HD, volume = volume))
 
 ## Introduction
 
-This paper concerns inverse estimation with linear mixed-effects models (LMMs); however, the methods presented here can be applied to nonlinear mixed-effects models (NLMMS) and generalized linear mixed-effects models as well. Consider an ordinary regression model $\mathcal{Y}_i = f\left(x_i; \boldsymbol{\beta} \right) + \epsilon_i$ $(i = 1, ..., n)$, where $f$ is a known expectation function (called a *calibration curve*) that is monotonic over the range of interest and $\epsilon_i \stackrel{iid}{\sim} \mathcal{N}\left( 0, \sigma^2 \right)$. A common problem in regression is to predict a future response $\mathcal{Y}_0$ (or estimate the mean response $f_0 = E\left[\mathcal{Y}_0\right]$) for a known value of the explanatory variable $x_0$. Often, however, there is a need to do the reverse; that is, given an observed value of the response $\mathcal{Y} = y_0$ (or a specified value of the mean response), infer the unknown value of the explanatory variable $x_0$. This is known as the *calibration problem*, though we refer to it more generally as inverse estimation. A thorough overview of the calibration problem is given in @osborne-statistical-1991. @oman-calibration-1998 considers the case of a random intercept and slope model.
+This paper concerns inverse estimation with linear mixed-effects models (LMMs); however, the methods presented here can be extended to generalized least-squares (GLS), nonlinear mixed-effects models (NLMMS) and generalized linear mixed-effects models as well. Consider an ordinary regression model $\mathcal{Y}_i = f\left(x_i; \boldsymbol{\beta} \right) + \epsilon_i$ $(i = 1, ..., n)$, where $f$ is a known expectation function (called a *calibration curve* in this context) that is monotonic over the range of interest and $\epsilon_i \stackrel{iid}{\sim} \mathcal{N}\left( 0, \sigma^2 \right)$. A common problem in regression is to predict a future response $\mathcal{Y}_0$ (or estimate the mean response $f_0 = E\left[\mathcal{Y}_0\right]$) for a known value of the explanatory variable $x_0$. Often, however, there is a need to do the reverse; that is, given an observed value of the response $\mathcal{Y} = y_0$ (or a specified value of the mean response), infer the unknown value of the explanatory variable $x_0$. This is known as the *calibration problem*, though we refer to it more generally as inverse estimation. A thorough overview of the calibration problem is given in @osborne-statistical-1991 and @greenwell-topics-2014. @oman-calibration-1998 considers the case of a random intercept and slope model and provides an approximate parametric bootstrap algorithm for inferring $x_0$ (the algorithm we present later is fully parametric).
 
 
 ### Linear mixed-effects models
@@ -204,27 +204,31 @@ $$
 
 ## Bladder volume example
 
-For illustration, let us consider the bladder volume data which can be found in @brown-measurement-1993, pg. 7, and @oman-calibration-1998. In Brown's words:
+For illustration, we consider the bladder volume data which first appeared in @haylen-transvaginal-1989 and again in @brown-measurement-1993, pg. 7, and @oman-calibration-1998. The study sample consisted of a series of 23 female patients attending a urodynamic clinic. After successfully voiding their bladder, each subject was injected with sterile water in additions of 1, 1.5, and then 2.5 cl increments up to a final cumulative total of 17.5 cl. At each true volume $V$ a measure of height ($H$) in mm and depth ($D$) in mm of largest ultrasound bladder images were taken. The product $HD = H \times D$ was taken as a measure of liquid volume."
 
-"A series of 23 women patients attending a urodynamic clinic were recruited for the study. After successful voiding of the bladder, sterile water was introduced in additions of 1, 1.5, and then 2.5 cl increments up to a final cumulative total of 17.5 cl. At each volume a measure of height ($H$) in mm and depth ($D$) in mm of largest ultrasound bladder images were taken. The product $H$ $\times$ $D$ was taken as a measure of liquid volume."
-
-We took Brown's suggestion and transformed the data so that the relationship is approximately linear. A spaghetti plot of the transformed data is displayed in the left side of Figure 1. The right side of Figure 1 displays the estimated coefficients from individual linear regression models fit to each subject (the predictor `V` has been centered to remove correlation between the intercepts and slopes); the bars represent one-at-a-time 95% confidence intervals.
+A spaghetti plot of the raw data is displayed in the left side of Figure 1. As noted by @brown-measurement-1993, $\left(H \times D\right) ^ {3/2}$ should be linearly related to $V$. The transformed version of the data is displayed in the right side of Figure 1.
 
 ```{r, echo=FALSE, fig.width=8, fig.height=4, fig.cap="Bladder volume data. Left: spaghettiplot of transformed data (lines connect measurements belonging to the same subject). Right: Estimated subject specific intercepts and slopes (with one-at-a-time 95% confidence limits)."}
-p1 <- ggplot(bladder, aes(x = volume, y = HD ^ (3/2), group = subject)) +
+p1 <- ggplot(bladder, aes(x = volume, y = HD, group = subject)) +
+  geom_line(alpha = 0.4) +
+  geom_point(alpha = 0.7) +
+  theme_light() +
+  labs(x = "Volume (cl)", y = expression(HD)) +
+  scale_color_discrete(guide = FALSE)
+p2 <- ggplot(bladder, aes(x = volume, y = HD ^ (3/2), group = subject)) +
   geom_line(alpha = 0.4) +
   geom_point(alpha = 0.7) +
   theme_light() +
   labs(x = "Volume (cl)", y = expression(HD^{3/2})) +
   scale_color_discrete(guide = FALSE)
-bladder.lmList <- lmList(HD ^ (3 / 2) ~ I(volume - mean(volume)) | subject, 
-                         data = bladder)
-p2 <- plot(intervals(bladder.lmList))
-p2$condlevels$what <- c("beta0", "beta1")
+# bladder.lmList <- lmList(HD ^ (3 / 2) ~ I(volume - mean(volume)) | subject, 
+#                          data = bladder)
+# p2 <- plot(intervals(bladder.lmList))
+# p2$condlevels$what <- c("beta0", "beta1")
 gridExtra::grid.arrange(p1, p2, ncol = 2)
 ```
 
-As indicated by Figure #, the intercept and slopes very between subjects; hence, the following random intercept and slope model seems appropriate:
+As indicated by Figure 1, the intercept and slopes seem to very between subjects for the transfored data; hence, the following random intercept and slope model seems appropriate:
 $$
   HD^{3/2}_{ij} = \left(\beta_0 + b_{0i}\right) + \left(\beta_1 + b_{1i}\right)V_{ij} + \epsilon_{ij}
 $$
@@ -249,7 +253,7 @@ The `pdDiag` function forces a diagonal variance-covariance structure on the ran
 
 ### The investr package
 
-The R package `investr` facilitates calibration/inverse estimation with linear and nonlinear regression models.  The main function, `invest`, can be used for inverse estimation of $x_0$ given an observed response $y_0$.  More recently, the package has been updated to also handle objects of class `"lme"` from the `nlme` package; `nlme` is a recommended R package for fitting linear and nonlinear mixed-effects models and is installed with R.  Current functionality includes both the Wald-based and inversion methods discussed previously. The main arguments for this function (as it applies to `"lme"` objects) are noted in Table 2 below.  The code for the package is hosted on GitHub at \url{https://github.com/bgreenwell/investr}, but the latest stable release can be found on CRAN at \url{https://CRAN.R-project.org/package=investr}. An in-depth introduction to the `investr` package is given in @greenwell-investr-2014. Though the paper only covers cases with independent observations, the discussion is still relevent to the use of the package with LMMs.
+The R package `investr` facilitates calibration/inverse estimation with linear and nonlinear regression models.  The main function, `invest`, can be used for inverse estimation of $x_0$ given an observed response $y_0$.  More recently, the package has been updated to also handle objects of class `"lme"` from the `nlme` package; `nlme` is a recommended R package for fitting linear and nonlinear mixed-effects models and is installed with R. Current functionality includes both the Wald-based and inversion methods discussed previously. The main arguments for this function (as it applies to `"lme"` objects) are noted in Table 2 below.  The source code for the package is hosted on GitHub at \url{https://github.com/bgreenwell/investr}, and the latest stable release can be found on CRAN at \url{https://CRAN.R-project.org/package=investr}. An in-depth introduction to the `investr` package is given in @greenwell-investr-2014. Though the paper only covers the case with independent observations, the discussion is still relevent to the use of the package with LMMs.
 
 | Argument | Description                                                 |
 |:---------|:------------------------------------------------------------|
@@ -264,7 +268,6 @@ The R package `investr` facilitates calibration/inverse estimation with linear a
 |`maxiter`|The maximum number of iterations passed on to `uniroot`.|
 |`q1`|Optional lower cutoff to be used in forming confidence intervals. Only used when `object` inherits from class `"lme"`. Defaults to `stats::qnorm((1+level)/2)`.|
 |`q2`|Optional upper cutoff to be used in forming confidence intervals. Only used when `object` inherits from class `"lme"`. Defaults to `stats::qnorm((1-level)/2)`.|
-
 
 Returning to the bladder volume example, suppose we obtained an ultrasound measurement from a new patient for which $HD^{3/2} = 500$ (that's roughly 63 on the original scale).  What is the true volume of fluid ($x_0$) in the patients bladder?  We can estimate the true volume and form an approximate 95\% confidence interval using the methods discussed previously.  The point estimate is simply given by
 $$
@@ -282,7 +285,7 @@ fun <- function(x) {
 }
 uniroot(fun, lower = 1, upper = 17.5, tol = 1e-10, maxiter = 1000)$root
 ```
-In other words, `invest` relies on R function `uniroot` from the `stats` package to solve the equation $f\left(x; \widehat{\boldsymbol{\beta}}\right) - y_0 = 0$ numerically for $x$.  If the solution does not lie in the range of predictor values, then an error message will be displayed, as in
+In other words, `invest` relies on the R function `uniroot` from the `stats` package to solve the equation $f\left(x; \widehat{\boldsymbol{\beta}}\right) - y_0 = 0$ numerically for $x$.  If the solution does not lie in the range of predictor values, then an error message will be displayed, as in
 ```{r, error=TRUE}
 invest(bladder.lme, y0 = 1500)
 ```
@@ -367,11 +370,11 @@ cp <- c(0.89, 0.89, 0.89, 0.87, 0.89, 0.89, 0.90, 0.89, 0.88, 0.90, 0.92, 0.92,
         0.94, 0.95)
 m <- factor(rep(c(5, 10, 30, 50, 100), each = 10))
 n <- factor(rep(c(5, 10, 30, 50, 100, 5, 10, 30, 50, 100), times = 5))
-interval <- factor(rep(c("wald", "inversion"), each = 5, times = 5))
-res <- data.frame(cp, m, n, interval)
-ggplot(res, aes(x = m, y = cp, group = interval, linetype = interval)) +
+method <- factor(rep(c("wald", "inversion"), each = 5, times = 5))
+res <- data.frame(cp, m, n, method)
+ggplot(res, aes(x = m, y = cp, group = method, linetype = method)) +
   geom_line() +
-  # geom_point() +
+  geom_point() +
   facet_wrap( ~ n) +
   ylab("Estimated coverage probability") +
   theme_light()
@@ -442,7 +445,7 @@ The `bootMer` function returns an object of class `boot` which can then be proce
 library(boot)  # load boot package
 summary(pb)
 ```
-The estimated standard error and bias of $\widehat{x}_0$, based on `R =` ```r pb$R``` bootstrap replicates, are ```r summary(pb)$bootSE[1]``` and ```r summary(pb)$bootBias[2]```, respectively.  The original estimate $\widehat{x}_0$ and the median of the bootstrap replicates are also given in the first row of the summary.  A graphical summary of the bootstrap simulation is given in Figure (#).  These graphs indicate that the sampling distributions of $\widehat{x}_0$, $Q_W$, and $Q_I$ are all approximately normal; hence, we would expect the bootstrap confidence intervals to be similar to the asymptotic methods based on the normal distribution discussed in Sections (#)-(#).
+The estimated standard error and bias of $\widehat{x}_0$, based on $R =$ ```r pb$R``` bootstrap replicates, are ```r summary(pb)$bootSE[1]``` and ```r summary(pb)$bootBias[2]```, respectively.  The original estimate $\widehat{x}_0$ and the median of the bootstrap replicates are also given in the first row of the summary.  A graphical summary of the bootstrap simulation is given in Figure (#).  These graphs indicate that the sampling distributions of $\widehat{x}_0$, $Q_W$, and $Q_I$ are all approximately normal; hence, we would expect the bootstrap confidence intervals to be similar to the asymptotic methods based on the normal distribution discussed in Sections (#)-(#).
 ```{r, boot-plots, echo=FALSE, fig.width=7, fig.height=4, out.width='\\linewidth', fig.cap='Graphical summary of bootstrap replicates. $R = 9,999$ bootstrap replicates of $\\widehat{x}_0$ (left), $Q_W$ (middle), and $Q_I$ (right).', fig.pos='!htb'}
 cols <- RColorBrewer::brewer.pal(9, "Set1")
 x0.boot <- pb$t[, 1]
@@ -535,24 +538,7 @@ lengths <- apply(rbind(c(wald$lower, wald$upper),
   $CI_{inv}^\star\left(x_0\right)$      | ```r x0.est``` | ```r se.boot``` | (```r inversion.pboot$lower```, ```r inversion.pboot$upper```) | ```r lengths[5]``` |
 Table 3. Summary of results for the bladder volume example. A $\star$ symbol indicates a parametric bootstrap-based confidence interval
 
-For the bladder volume data, we were able to tranform the response so that a straight line provided a reasonable fit. This simple form led to closed-form solution for $\widehat{x}_0$. This is not always the case in practice. For example, suppose that we observed a new ultra sound measurement `HD = 90` and we wish to estimate the true volume of liquid in the patients bladder using the original (untransformed) data. A spaghetti plot of the untransformed data is displayed in the left side of Figure (#). The right side of Figure (#) displays the estimated coefficients from individual linear regression models with a quadratic term fit to each subject (as before, the predictor `V` was centered); the bars represent one-at-a-time 95% confidence intervals
-
-```{r, echo=FALSE, fig.width=8, fig.height=4, fig.cap="Bladder volume data. Left: spaghettiplot of untransformed data (lines connect measurements belonging to the same subject). Right: Estimated subject specific intercepts and slopes (with one-at-a-time 95% confidence limits)."}
-bladder.lmer <- lmer(HD ~ volume + I(volume^2) + (0+1|subject) + 
-                       (0+volume|subject), data = bladder)
-p1 <- ggplot(bladder, aes(x = volume, y = HD, group = subject)) +
-  geom_line(alpha = 0.4) +
-  geom_point(alpha = 0.7) +
-  theme_light() +
-  xlab("Volume (cl)") +
-  scale_color_discrete(guide = FALSE)
-bladder.lmList <- lmList(HD ~ I(volume - mean(volume)) + 
-                           I((volume - mean(volume))^2) | subject, 
-                         data = bladder)
-p2 <- plot(intervals(bladder.lmList))
-p2$condlevels$what <- c("beta0", "beta1", "beta2")
-gridExtra::grid.arrange(p1, p2, ncol = 2)
-```
+For the bladder volume data, we were able to tranform the response so that a straight line provided a reasonable fit. This simple form led to a closed-form solution for $\widehat{x}_0$. This is not always the case in practice. For example, suppose that we observed a new ultra sound measurement `HD = 90` and we wish to estimate the true volume of liquid in the patients bladder using the original (untransformed) data. 
 
 As it turns out, adding a quadratic term to the previously fitted LMM yields a reasonable fit. Since the intervals for coefficient of the quadratic term in Figure (#) mostly overlap, we used the same random effects structure as before with the model for the transformed data. 
 $$
@@ -571,8 +557,7 @@ bladder.lmer <- lmer(HD ~ volume + I(volume^2) + (0+1|subject) +
 knitr::kable(summary(bladder.lmer)$coefficients, caption = "Fixed-effects t-table for the random intercept and slope model fit to the bladder volume data.")
 ```
 
-
-The point estimate of $x_0$ is easily obtained using the quadratic formula: $\widehat{x}_0 = 13.05$.  Recall, from Figure (#) that each patient has a slightly nonlinear trajectory; thus, there is no reason to expect the sampling distribution of $\widehat{x}_0$ to be normal, or even symmetric in this case.  To see that this is indeed the case, we applied the parametric bootstrap.  The results are summarized in Figure (#).  Clearly, the Wald-based confidence interval (#) will not be accurate in this case.  However, the approximate predictive pivot used in the inversion interval (#) appears reasonably normal.  Thus, our recommendation is that, if the number of subjects $m$ is reasonably large (say $m \ge 30$) and the bootstrap replicates are approximately normal (see Figure (#)), then the Wald-based and inversion methods are useful.  Otherwise, it is probably best to stick with the parametric bootstrap confidence intervals or, if prior information is available, adopt a fully Bayesian approach.
+The point estimate of $x_0$ is easily obtained using the quadratic formula: $\widehat{x}_0 = 13.05$.  Recall, from Figure 1 that each patient has a slightly nonlinear trajectory; thus, there is no reason to expect the sampling distribution of $\widehat{x}_0$ to be normal, or even symmetric in this case.  To see that this is indeed the case, we applied the parametric bootstrap.  The results are summarized in Figure (#).  Clearly, the Wald-based confidence interval ($C_{wald}\left(x_0\right)$) will not be accurate in this case. However, the approximate predictive pivot used in the inversion interval ($C_{inv}\left(x_0\right)$) appears reasonably normal. Thus, our recommendation is that, if the number of subjects $m$ is reasonably large (say $m \ge 30$) and the bootstrap replicates are approximately normal (see Figure (#)), then the Wald-based and inversion methods are useful. Otherwise, it is probably best to stick with the parametric bootstrap confidence intervals or, if prior information is available, adopt a fully Bayesian approach.
 ```{r, boot-plots-2, echo=FALSE, fig.width=7, fig.height=4, out.width='\\linewidth', fig.cap='Graphical summary of bootstrap replicates. $R = 9,999$ bootstrap replicates of $\\widehat{x}_0$ (left), $Q_W$ (middle), and $Q_I$ (right).', fig.pos='!htb'}
 x0.boot2 <- pb2$t[, 1]
 QI.boot2 <- pb2$t[, 2]
