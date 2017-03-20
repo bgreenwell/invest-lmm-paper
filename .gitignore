@@ -2,3 +2,15 @@
 .Rhistory
 .RData
 .Ruserdata
+.*.tex
+.*.text
+.*.log
+.*.RData
+.*.pdf
+.*.html
+figure
+invest-lmm-paper.Rproj
+invest-lmm_cache
+invest-lmm_files
+greenwell_linear_2014 (biometrics)
+greenwell_linear_2014 (JSS)
