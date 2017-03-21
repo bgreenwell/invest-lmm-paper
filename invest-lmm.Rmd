@@ -10,7 +10,7 @@ header-includes: \usepackage{setspace}\doublespacing
 bibliography: invest-lmm.bib
 subtitle: with Application in R
 abstract: |
-  Inverse estimation, also known as inverse prediction or statistical calibration, is a classical and well-known problem in regression. In simple terms, it involves the use of an observed value of the response (or specified value of the mean response) to make inference on the corresponding unknown value of the explanatory variable. In this paper, we describe how to calculate approximate calibration confidence intervals for the unknown value of the explanatory variable in linear mixed-effects models using asymptotic methods and a parametric bootstrap. The converage probability for the asymptotic intervals is estimated as a function of sample size using a small Monte-Carlo simulation. Examples are given using the R programming language with a real data set.
+  Inverse estimation, also known as inverse prediction or statistical calibration, is a classical and well-known problem in regression. In simple terms, it involves the use of an observed value of the response, or specified value of the mean response, to make inference on the corresponding unknown value of the explanatory variable. In this paper, we describe how to calculate approximate calibration confidence intervals for the unknown value of the explanatory variable in linear mixed-effects models using both asymptotic methods and a parametric bootstrap. The converage probability for the asymptotic procedures is assessed using a small Monte-Carlo simulation. Examples are given using the R programming language with a real data set.
 ---
 
 ```{r setup, include=FALSE}
@@ -58,7 +58,7 @@ bladder <- na.omit(data.frame(subject = subject, HD = HD, volume = volume))
 
 ## Introduction
 
-Consider an ordinary regression model $\mathcal{Y}_i = f\left(x_i; \boldsymbol{\beta} \right) + \epsilon_i$ $(i = 1, ..., n)$, where $f$ is a known expectation function (called a *calibration curve* in this context) that is monotonic over the range of interest and $\epsilon_i \stackrel{iid}{\sim} \mathcal{N}\left( 0, \sigma^2 \right)$. A common problem in regression is to predict a future response $\mathcal{Y}_0$ (or estimate the mean response $f_0 = E\left[\mathcal{Y}_0\right]$) for a known value of the explanatory variable $x_0$. Often, however, there is a need to do the reverse; that is, given an observed value of the response $\mathcal{Y} = y_0$ (or a specified value of the mean response), infer the unknown value of the explanatory variable $x_0$. This is known as the *calibration problem*, though we refer to it more generally as inverse estimation. 
+Consider an ordinary regression model $\mathcal{Y}_i = f\left(x_i; \boldsymbol{\beta} \right) + \epsilon_i$ $(i = 1, ..., n)$, where $f$ is a known expectation function (called a *calibration curve* in this context) that is monotonic over the range of interest and $\epsilon_i \stackrel{iid}{\sim} \mathcal{N}\left( 0, \sigma^2 \right)$. A common problem in regression is to predict a future response $\mathcal{Y}_0$, or estimate the mean response $f_0 = E\left[\mathcal{Y}_0\right]$, for a known value of the explanatory variable $x_0$. Often, however, there is a need to do the reverse; that is, given an observed value of the response $\mathcal{Y} = y_0$ (*calibration*), or a specified value of the mean response (*regulation*), infer the unknown value of the explanatory variable $x_0$; we refer to both situations more generally as inverse estimation. Though this paper focuses on calibration (in particular, *controlled calibration*, where the predictor $x$ is held fixed by deisgn), the methods can be narrowed to handle regulation.
 
 A thorough overview of the calibration problem is given in @osborne-statistical-1991 and @greenwell-topics-2014. @oman-calibration-1998 considers the case of a random intercept and slope model and provides an approximate parametric bootstrap algorithm for inferring $x_0$ (the algorithm we present later is fully parametric). 
 
@@ -153,7 +153,7 @@ $$
 $$
 where $\Phi^{-1}$ is the probit function.
 
-Alternatively, one can use a parametric bootstrap esimate of the standard error, say $SE^\star\left[\widehat{x}_0\right]$; this is discussed in a later section. The advantage of using $SE^\star\left[\widehat{x}_0\right]$ over $SE\left[\widehat{x}_0\right]$ is that $SE^\star\left[\widehat{x}_0\right]$, through simulation, would take into account the variability of the estimated variance components $\widehat{\sigma}_0^2$ and $\widehat{\boldsymbol{V}}$.
+Alternatively, one can use a parametric bootstrap estimate of the standard error, say $SE^\star\left[\widehat{x}_0\right]$; this is discussed in a later section. The advantage of using $SE^\star\left[\widehat{x}_0\right]$ over $SE\left[\widehat{x}_0\right]$ is that $SE^\star\left[\widehat{x}_0\right]$, through simulation, would take into account the variability of the estimated variance components $\widehat{\sigma}_0^2$ and $\widehat{\boldsymbol{V}}$.
 
 
 ## Inversion interval for $x_0$
@@ -191,7 +191,7 @@ We consider the values 5, 10, 30, 50, and 100 for both the number of subjects $m
 |      | Inversion | 0.94    | 0.95     | 0.95     | 0.94     | 0.94 |
 |  100 | Wald      | 0.95    | 0.95     | 0.95     | 0.94     | 0.94 |
 |      | Inversion | 0.95    | 0.95     | 0.95     | 0.94     | 0.95 |
-Table 1. Estimated coverage probability for $CI_W\left(x_0\right)$ and $CI_I\left(x_0\right)$ as a function of the number of subjects (rows) and the number of observations per subject (columns).
+**Table 1.** Estimated coverage probability for $CI_W\left(x_0\right)$ and $CI_I\left(x_0\right)$ as a function of the number of subjects (rows) and the number of observations per subject (columns).
 
 ```{r, echo=FALSE, fig.cap="Estimated coverage probability for $CI_W\\left(x_0\\right)$ and $CI_I\\left(x_0\\right)$ as a function of the number of subjects ($x$-axis) and the number of observations per subject ($y$-axis)."}
 cp <- c(0.89, 0.89, 0.89, 0.87, 0.89, 0.89, 0.90, 0.89, 0.88, 0.90, 0.92, 0.92,
@@ -225,7 +225,9 @@ Let $\widehat{\sigma}_0^2$ be an estimate of the variance of the new observation
 	  (4) Define $\widehat{x}_0^\star = f^{-1}\left(y_0^\star; \widehat{\boldsymbol{\beta}}^\star\right)$;
   * Repeat steps (1)-(4) $R$ times.
 
-There are many bootstrap confidence interval procedures, for instance: the percentile method [@efron-bootstrap-1979], the studentized bootstrap $t$ method [@efron-jackknife-1982], and the double bootstrap method [@hall-bootstrap-1986]. For a good overview of these confidence interval procedures and more, see @hinkley-bootstrap-1997, chap. 5, and @boos-essential-2013, chap. 11. In the next section, we discuss how to use this algorithm to adjust the previously discussed inversion interval.
+**Algorithm 1.** Parametric bootstrap for controlled calibration in LMMs.
+
+There are many bootstrap confidence interval procedures available once a set of bootstrap replicates has been obtained, for instance: the percentile method [@efron-bootstrap-1979], the studentized bootstrap $t$ method [@efron-jackknife-1982], and the double bootstrap method [@hall-bootstrap-1986]. For a good overview of these confidence interval procedures and more, see @hinkley-bootstrap-1997, chap. 5, and @boos-essential-2013, chap. 11. In the next section, we discuss how to use Algorithm (1) to adjust the previously discussed inversion interval.
 
 It is possible to adopt a Bayesian approach to obtain the posterior distribution of $x_0$. However, as discussed in @hoadley_bayesian_1970 (and the commenting articles), finding a prior for $x_0$ is not always straightforward, even in the case with independent observations. For the bladder volume example, it seems that any prior with positive support would be reasonable.
 
@@ -236,7 +238,7 @@ It is possible to adopt a Bayesian approach to obtain the posterior distribution
 $$
   Q_I = \frac{\mathcal{Y}_0-f\left(x; \widehat{\boldsymbol{\beta}}\right)}{\left\{ \widehat{VAR}\left[\mathcal{Y}_0 - f\left(x; \widehat{\boldsymbol{\beta}}\right)\right] \right\}^{1/2}}
 $$
-has a $\mathcal{N}\left(0, 1\right)$ distribution. A bootstrap modified inversion interval would instead use the bootstrap distribution of
+has a standard normal distribution. A bootstrap modified inversion interval would instead use bootstrap replicates of
 $$
   Q_I^\star = \frac{\mathcal{Y}_0^\star-f\left(\widehat{x}_0; \widehat{\boldsymbol{\beta}}^\star\right)}{\left\{ \widehat{VAR}\left[\mathcal{Y}_0 - f\left(\widehat{x}_0; \widehat{\boldsymbol{\beta}}^\star\right)\right] \right\}^{1/2}},
 $$
@@ -272,7 +274,7 @@ p2 <- ggplot(bladder, aes(x = volume, y = HD ^ (3/2), group = subject)) +
 gridExtra::grid.arrange(p1, p2, ncol = 2)
 ```
 
-As indicated by Figure 1, the intercept and slopes seem to very between subjects for the transfored data; hence, the following random intercept and slope model seems appropriate:
+As indicated by Figure 1, the intercept and slopes seem to very between subjects for the transformed data; hence, the following random intercept and slope model seems appropriate:
 $$
   HD^{3/2}_{ij} = \left(\beta_0 + b_{0i}\right) + \left(\beta_1 + b_{1i}\right)V_{ij} + \epsilon_{ij}
 $$
@@ -303,7 +305,7 @@ Fortunately, $CI_I\left(x_0\right)$ can be computed numerically using the `inves
 
 The `bootMer` function in the `lme4` package [@bates-lme4-2014] can be used for model-based parametric bootstrapping in mixed-effects models.
 
-The R package `investr` facilitates calibration/inverse estimation with linear and nonlinear regression models.  The main function, `invest`, can be used for inverse estimation of $x_0$ given an observed response $y_0$.  More recently, the package has been updated to also handle objects of class `"lme"` from the `nlme` package; `nlme` is a recommended R package for fitting linear and nonlinear mixed-effects models and is installed with R. Current functionality includes both the Wald-based and inversion methods discussed previously. The main arguments for this function (as it applies to `"lme"` objects) are noted in Table 2 below.  The source code for the package is hosted on GitHub at \url{https://github.com/bgreenwell/investr}, and the latest stable release can be found on CRAN at \url{https://CRAN.R-project.org/package=investr}. An in-depth introduction to the `investr` package is given in @greenwell-investr-2014. Though the paper only covers the case with independent observations, the discussion is still relevent to the use of the package with LMMs.
+The R package `investr` facilitates calibration/inverse estimation with linear and nonlinear regression models.  The main function, `invest`, can be used for inverse estimation of $x_0$ given an observed response $y_0$.  More recently, the package has been updated to also handle objects of class `"lme"` from the `nlme` package; `nlme` is a recommended R package for fitting linear and nonlinear mixed-effects models and is installed with R. Current functionality includes both the Wald-based and inversion methods discussed previously. The main arguments for this function (as it applies to `"lme"` objects) are noted in Table 2 below.  The source code for the package is hosted on GitHub at \url{https://github.com/bgreenwell/investr}, and the latest stable release can be found on CRAN at \url{https://CRAN.R-project.org/package=investr}. An in-depth introduction to the `investr` package is given in @greenwell-investr-2014. Though the paper only covers the case with independent observations, the discussion is still relevant to the use of the package with LMMs.
 
 | Argument | Description                                                 |
 |:---------|:------------------------------------------------------------|
@@ -311,7 +313,7 @@ The R package `investr` facilitates calibration/inverse estimation with linear a
 |`y0` |The value of the observed response(s) or specified value of the mean response. For `"glm"` objects, `y0` should be on the scale of the response variable |
 |`interval`|The type of interval required.|
 |`level`|A numeric scalar between 0 and 1 giving the confidence level for the interval to be calculated.|
-|`mean.response`|Logical indicating whether confidence intervals should correspond to an individual response (`FALSE`) or a mean response (`TRUE`). For glm objects, this is always TRUE.|
+|`mean.response`|Logical indicating whether confidence intervals should correspond to an individual response (`FALSE`) or a mean response (`TRUE`). For `"glm"` objects, this is always TRUE.|
 |`lower`|The lower endpoint of the interval to be searched.|
 |`upper`|The upper endpoint of the interval to be searched.|
 |`tol`|The desired accuracy passed on to `uniroot`. Recommend a minimum of `1e-10`.|
@@ -397,7 +399,7 @@ As expected, this leads to a slightly larger inversion interval for $x_0$. Being
 
 Implementation of the parametric bootstrap algorithm in Figure (#) is relatively straight forward using the new `bootMer` function from the well-known R package `lme4` [@bates-lme4-2014] in conjunction with the `boot` package.
 
-Since we will be using the `lme4` package, we need to refit the model using the `lmer` function (notice the different syntax required for speicfying the same random effects structure):
+Since we will be using the `lme4` package, we need to refit the model using the `lmer` function (notice the different syntax required for specifying the same random effects structure):
 ```{r}
 library(lme4)  # install.packages("lme4")
 bladder.lmer <- lmer(HD^(3/2) ~ volume + (0+1|subject) + (0+volume|subject),
@@ -550,7 +552,7 @@ lengths <- apply(rbind(c(wald$lower, wald$upper),
   $CI_I^\star\left(x_0\right)$      | ```r x0.est``` | ```r se.boot``` | (```r inversion.pboot$lower```, ```r inversion.pboot$upper```) | ```r lengths[5]``` |
 Table 3. Summary of results for the bladder volume example. A $\star$ symbol indicates a parametric bootstrap-based confidence interval
 
-For the bladder volume data, we were able to tranform the response so that a straight line provided a reasonable fit. This simple form led to a closed-form solution for $\widehat{x}_0$. This is not always the case in practice. For example, suppose that we observed a new ultra sound measurement `HD = 90` and we wish to estimate the true volume of liquid in the patients bladder using the original (untransformed) data. 
+For the bladder volume data, we were able to transform the response so that a straight line provided a reasonable fit. This simple form led to a closed-form solution for $\widehat{x}_0$. This is not always the case in practice. For example, suppose that we observed a new ultra sound measurement `HD = 90` and we wish to estimate the true volume of liquid in the patients bladder using the original (untransformed) data. 
 
 As it turns out, adding a quadratic term to the previously fitted LMM yields a reasonable fit. Since the intervals for coefficient of the quadratic term in Figure (#) mostly overlap, we used the same random effects structure as before with the model for the transformed data. 
 $$
@@ -591,9 +593,11 @@ qqline(QI.boot2)
 ```
 
 
-## Conclusion
+## Discussion
 
 We have discussed a number of confidence interval procedures for statistical calibration in linear models with random coefficients with a single level of grouping. We have described two R packages for implementing these procedures: `investr` and `lme4`. The `investr` package can be used for obtaining the asymptotic confidence intervals (i.e., the Wald-based and inversion confidence intervals). We also showed how the `lme4` package can be used to obtain calibration intervals based on a parametric bootstrap using the recently added `bootMer` function. Future work will likely extend the methods discussed in this paper to more complicated cases such as nonlinear mixed-effects models and multi-level hierarchical models (i.e., more than one grouping variable).
+
+While most calibration experiments involve only a single predictor, it is not uncommon for there to be additional covariates (e.g., gender, age, race, etc.). For the later case, all the methods discussed in this paper still apply as long as the additional covariates are held fixed at a constant value.
 
 
 ## References
