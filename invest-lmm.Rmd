@@ -6,7 +6,9 @@ output:
   pdf_document: default
   html_document: default
   word_document: default
-header-includes: \usepackage{setspace}\doublespacing
+header-includes: 
+  - \usepackage{setspace}\doublespacing
+  - \setlength\parindent{24pt}
 bibliography: invest-lmm.bib
 subtitle: with Application in R
 abstract: |
